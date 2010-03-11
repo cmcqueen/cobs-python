@@ -54,7 +54,7 @@ setup(
     description='Consistent Overhead Byte Stuffing (COBS)',
     author='Craig McQueen',
     author_email='python@craig.mcqueen.id.au',
-    url='http://bitbucket.org/cmcqueen1975/cobs/',
+    url='http://bitbucket.org/cmcqueen1975/cobs-python/',
     packages=['cobs'],
     ext_modules=[
         Extension('cobs._cobsext', [extension_filename, ]),
