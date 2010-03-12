@@ -50,7 +50,7 @@ References
 
 setup(
     name='cobs',
-    version='0.5',
+    version='0.5.1',
     description='Consistent Overhead Byte Stuffing (COBS)',
     author='Craig McQueen',
     author_email='python@craig.mcqueen.id.au',
