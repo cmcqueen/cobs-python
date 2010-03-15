@@ -47,6 +47,34 @@
 #endif
 
 
+/*
+ * Given a PyObject* obj, fill in the Py_buffer* viewp with the result
+ * of PyObject_GetBuffer.  Sets and exception and issues a return NULL
+ * on any errors.
+ */
+#define GET_BUFFER_VIEW_OR_ERROUT(obj, viewp) do { \
+        if (PyUnicode_Check((obj))) { \
+            PyErr_SetString(PyExc_TypeError, \
+                            "Unicode-objects must be encoded as bytes first");\
+            return NULL; \
+        } \
+        if (!PyObject_CheckBuffer((obj))) { \
+            PyErr_SetString(PyExc_TypeError, \
+                            "object supporting the buffer API required"); \
+            return NULL; \
+        } \
+        if (PyObject_GetBuffer((obj), (viewp), PyBUF_SIMPLE) == -1) { \
+            return NULL; \
+        } \
+        if ((viewp)->ndim > 1) { \
+            PyErr_SetString(PyExc_BufferError, \
+                            "Buffer must be single dimension"); \
+            PyBuffer_Release((viewp)); \
+            return NULL; \
+        } \
+    } while(0);
+
+
 #define COBS_ENCODE_DST_BUF_LEN_MAX(SRC_LEN)            ((SRC_LEN) + ((SRC_LEN)/254u) + 1)
 #define COBS_DECODE_DST_BUF_LEN_MAX(SRC_LEN)            (((SRC_LEN) <= 1) ? 1 : ((SRC_LEN) - 1))
 
@@ -81,6 +109,8 @@ PyDoc_STRVAR(cobsencode__doc__,
 static PyObject*
 cobsencode(PyObject* self, PyObject* args)
 {
+    PyObject *      src_py_object;
+    Py_buffer       src_py_buffer;
     const char *    src_ptr;
     Py_ssize_t      src_len;
     const char *    src_end_ptr;
@@ -93,10 +123,15 @@ cobsencode(PyObject* self, PyObject* args)
     PyObject *      dst_py_obj_ptr;
 
 
-    if (!PyArg_ParseTuple(args, "s#", &src_ptr, &src_len))
+    if (!PyArg_ParseTuple(args, "O:in_bytes", &src_py_object))
     {
         return NULL;
     }
+
+    GET_BUFFER_VIEW_OR_ERROUT(src_py_object, &src_py_buffer);
+    src_ptr = src_py_buffer.buf;
+    src_len = src_py_buffer.len;
+
     src_end_ptr = src_ptr + src_len;
 
     /* Make an output string */
@@ -141,6 +176,9 @@ cobsencode(PyObject* self, PyObject* args)
         }
     }
 
+    /* We're done with the input buffer now, so we have to release the PyBuffer. */
+    PyBuffer_Release(&src_py_buffer);
+
     /* We've reached the end of the source data (or possibly run out of output buffer)
      * Finalise the remaining output. In particular, write the code (length) byte.
      * Update the pointer to calculate the final output length.
@@ -173,6 +211,8 @@ PyDoc_STRVAR(cobsdecode__doc__,
 static PyObject*
 cobsdecode(PyObject* self, PyObject* args)
 {
+    PyObject *              src_py_object;
+    Py_buffer               src_py_buffer;
     const char *            src_ptr;
     Py_ssize_t              src_len;
     const char *            src_end_ptr;
@@ -183,16 +223,22 @@ cobsdecode(PyObject* self, PyObject* args)
     PyObject *              dst_py_obj_ptr;
 
 
-    if (!PyArg_ParseTuple(args, "s#", &src_ptr, &src_len))
+    if (!PyArg_ParseTuple(args, "O:in_bytes", &src_py_object))
     {
         return NULL;
     }
+
+    GET_BUFFER_VIEW_OR_ERROUT(src_py_object, &src_py_buffer);
+    src_ptr = src_py_buffer.buf;
+    src_len = src_py_buffer.len;
+
     src_end_ptr = src_ptr + src_len;
 
     /* Make an output string */
     dst_py_obj_ptr = PyBytes_FromStringAndSize(NULL, COBS_DECODE_DST_BUF_LEN_MAX(src_len));
     if (dst_py_obj_ptr == NULL)
     {
+        PyBuffer_Release(&src_py_buffer);
         return NULL;
     }
     dst_buf_ptr = PyBytes_AsString(dst_py_obj_ptr);
@@ -207,6 +253,7 @@ cobsdecode(PyObject* self, PyObject* args)
             len_code = (unsigned char) *src_ptr++;
             if (len_code == 0)
             {
+                PyBuffer_Release(&src_py_buffer);
                 Py_DECREF(dst_py_obj_ptr);
                 PyErr_SetString(CobsDecodeError, "Zero byte found in input");
                 return NULL;
@@ -216,6 +263,7 @@ cobsdecode(PyObject* self, PyObject* args)
             remaining_bytes = src_end_ptr - src_ptr;
             if (len_code > remaining_bytes)
             {
+                PyBuffer_Release(&src_py_buffer);
                 Py_DECREF(dst_py_obj_ptr);
                 PyErr_SetString(CobsDecodeError, "Not enough input bytes for length code");
                 return NULL;
@@ -237,6 +285,9 @@ cobsdecode(PyObject* self, PyObject* args)
             }
         }
     }
+
+    /* We're done with the input buffer now, so we have to release the PyBuffer. */
+    PyBuffer_Release(&src_py_buffer);
 
     /* Calculate the output length, from the value of dst_code_write_ptr */
     _PyBytes_Resize(&dst_py_obj_ptr, dst_write_ptr - dst_buf_ptr);
