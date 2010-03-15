@@ -220,6 +220,8 @@ cobsdecode(PyObject* self, PyObject* args)
     char *                  dst_write_ptr;
     Py_ssize_t              remaining_bytes;
     unsigned char           len_code;
+    unsigned char           src_byte;
+    unsigned char           i;
     PyObject *              dst_py_obj_ptr;
 
 
@@ -269,9 +271,18 @@ cobsdecode(PyObject* self, PyObject* args)
                 return NULL;
             }
 
-            memcpy(dst_write_ptr, src_ptr, len_code);
-            dst_write_ptr += len_code;
-            src_ptr += len_code;
+            for (i = len_code; i != 0; i--)
+            {
+                src_byte = *src_ptr++;
+                if (src_byte == 0)
+                {
+                    PyBuffer_Release(&src_py_buffer);
+                    Py_DECREF(dst_py_obj_ptr);
+                    PyErr_SetString(CobsDecodeError, "Zero byte found in input");
+                    return NULL;
+                }
+                *dst_write_ptr++ = src_byte;
+            }
 
             if (src_ptr >= src_end_ptr)
             {
