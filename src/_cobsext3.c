@@ -106,10 +106,14 @@ PyDoc_STRVAR(cobsencode__doc__,
 "\n"
 "An empty string is encoded to '\\x01'.");
 
+/*
+ * This Python function uses arguments method METH_O,
+ * meaning the arg parameter contains the single parameter
+ * to the function.
+ */
 static PyObject*
-cobsencode(PyObject* self, PyObject* args)
+cobsencode(PyObject* module, PyObject* arg)
 {
-    PyObject *      src_py_object;
     Py_buffer       src_py_buffer;
     const char *    src_ptr;
     Py_ssize_t      src_len;
@@ -123,12 +127,7 @@ cobsencode(PyObject* self, PyObject* args)
     PyObject *      dst_py_obj_ptr;
 
 
-    if (!PyArg_ParseTuple(args, "O:in_bytes", &src_py_object))
-    {
-        return NULL;
-    }
-
-    GET_BUFFER_VIEW_OR_ERROUT(src_py_object, &src_py_buffer);
+    GET_BUFFER_VIEW_OR_ERROUT(arg, &src_py_buffer);
     src_ptr = src_py_buffer.buf;
     src_len = src_py_buffer.len;
 
@@ -208,10 +207,14 @@ PyDoc_STRVAR(cobsdecode__doc__,
 "A cobs.DecodeError exception may be raised if the encoded data\n"
 "is invalid.");
 
+/*
+ * This Python function uses arguments method METH_O,
+ * meaning the arg parameter contains the single parameter
+ * to the function.
+ */
 static PyObject*
-cobsdecode(PyObject* self, PyObject* args)
+cobsdecode(PyObject* module, PyObject* arg)
 {
-    PyObject *              src_py_object;
     Py_buffer               src_py_buffer;
     const char *            src_ptr;
     Py_ssize_t              src_len;
@@ -225,12 +228,7 @@ cobsdecode(PyObject* self, PyObject* args)
     PyObject *              dst_py_obj_ptr;
 
 
-    if (!PyArg_ParseTuple(args, "O:in_bytes", &src_py_object))
-    {
-        return NULL;
-    }
-
-    GET_BUFFER_VIEW_OR_ERROUT(src_py_object, &src_py_buffer);
+    GET_BUFFER_VIEW_OR_ERROUT(arg, &src_py_buffer);
     src_ptr = src_py_buffer.buf;
     src_len = src_py_buffer.len;
 
@@ -317,8 +315,8 @@ PyDoc_STRVAR(module__doc__,
 
 static PyMethodDef methodTable[] =
 {
-    { "encode", cobsencode, METH_VARARGS, cobsencode__doc__ },
-    { "decode", cobsdecode, METH_VARARGS, cobsdecode__doc__ },
+    { "encode", cobsencode, METH_O, cobsencode__doc__ },
+    { "decode", cobsdecode, METH_O, cobsdecode__doc__ },
     { NULL, NULL, 0, NULL }
 };
 
