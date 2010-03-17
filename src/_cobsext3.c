@@ -53,22 +53,17 @@
  * on any errors.
  */
 #define GET_BUFFER_VIEW_OR_ERROUT(obj, viewp) do { \
-        if (PyUnicode_Check((obj))) { \
-            PyErr_SetString(PyExc_TypeError, \
-                            "Unicode-objects must be encoded as bytes first");\
-            return NULL; \
-        } \
         if (!PyObject_CheckBuffer((obj))) { \
             PyErr_SetString(PyExc_TypeError, \
-                            "object supporting the buffer API required"); \
+                            "An object supporting the buffer API is required"); \
             return NULL; \
         } \
-        if (PyObject_GetBuffer((obj), (viewp), PyBUF_SIMPLE) == -1) { \
+        if (PyObject_GetBuffer((obj), (viewp), PyBUF_FORMAT) == -1) { \
             return NULL; \
         } \
-        if ((viewp)->ndim > 1) { \
+        if (((viewp)->ndim > 1) || ((viewp)->itemsize > 1)) { \
             PyErr_SetString(PyExc_BufferError, \
-                            "Buffer must be single dimension"); \
+                            "Object must be a single-dimension buffer of bytes."); \
             PyBuffer_Release((viewp)); \
             return NULL; \
         } \
@@ -127,6 +122,12 @@ cobsencode(PyObject* module, PyObject* arg)
     PyObject *      dst_py_obj_ptr;
 
 
+    if (PyUnicode_Check((arg)))
+    {
+        PyErr_SetString(PyExc_TypeError,
+                        "Unicode-objects must be encoded as bytes first");
+        return NULL;
+    }
     GET_BUFFER_VIEW_OR_ERROUT(arg, &src_py_buffer);
     src_ptr = src_py_buffer.buf;
     src_len = src_py_buffer.len;
@@ -228,6 +229,12 @@ cobsdecode(PyObject* module, PyObject* arg)
     PyObject *              dst_py_obj_ptr;
 
 
+    if (PyUnicode_Check((arg)))
+    {
+        PyErr_SetString(PyExc_TypeError,
+                        "Unicode-objects are not supported; byte buffer objects only.");
+        return NULL;
+    }
     GET_BUFFER_VIEW_OR_ERROUT(arg, &src_py_buffer);
     src_ptr = src_py_buffer.buf;
     src_len = src_py_buffer.len;
