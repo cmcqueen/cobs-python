@@ -12,6 +12,8 @@ elif sys.version_info[0] == 3:
 if sys.version_info[0] == 2:
     if sys.version_info[1] >= 6:
         cobs_package_dir = 'cobs26'
+    else:
+        cobs_package_dir = 'cobs2'
 elif sys.version_info[0] == 3:
     cobs_package_dir = 'cobs3'
 
