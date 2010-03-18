@@ -17,8 +17,8 @@ References:
 """
 
 try:
-    from cobs._cobsext import *
+    from ._cobsext import *
     _using_extension = True
 except ImportError:
-    from cobs._cobspy import *
+    from ._cobspy import *
     _using_extension = False
