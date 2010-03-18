@@ -55,7 +55,7 @@
 #define GET_BUFFER_VIEW_OR_ERROUT(obj, viewp) do { \
         if (!PyObject_CheckBuffer((obj))) { \
             PyErr_SetString(PyExc_TypeError, \
-                            "An object supporting the buffer API is required"); \
+                            "object supporting the buffer API is required"); \
             return NULL; \
         } \
         if (PyObject_GetBuffer((obj), (viewp), PyBUF_FORMAT) == -1) { \
@@ -63,7 +63,7 @@
         } \
         if (((viewp)->ndim > 1) || ((viewp)->itemsize > 1)) { \
             PyErr_SetString(PyExc_BufferError, \
-                            "Object must be a single-dimension buffer of bytes."); \
+                            "object must be a single-dimension buffer of bytes"); \
             PyBuffer_Release((viewp)); \
             return NULL; \
         } \
@@ -232,7 +232,7 @@ cobsdecode(PyObject* module, PyObject* arg)
     if (PyUnicode_Check((arg)))
     {
         PyErr_SetString(PyExc_TypeError,
-                        "Unicode-objects are not supported; byte buffer objects only.");
+                        "Unicode-objects are not supported; byte buffer objects only");
         return NULL;
     }
     GET_BUFFER_VIEW_OR_ERROUT(arg, &src_py_buffer);
@@ -262,7 +262,7 @@ cobsdecode(PyObject* module, PyObject* arg)
             {
                 PyBuffer_Release(&src_py_buffer);
                 Py_DECREF(dst_py_obj_ptr);
-                PyErr_SetString(CobsDecodeError, "Zero byte found in input");
+                PyErr_SetString(CobsDecodeError, "zero byte found in input");
                 return NULL;
             }
             len_code--;
@@ -272,7 +272,7 @@ cobsdecode(PyObject* module, PyObject* arg)
             {
                 PyBuffer_Release(&src_py_buffer);
                 Py_DECREF(dst_py_obj_ptr);
-                PyErr_SetString(CobsDecodeError, "Not enough input bytes for length code");
+                PyErr_SetString(CobsDecodeError, "not enough input bytes for length code");
                 return NULL;
             }
 
@@ -283,7 +283,7 @@ cobsdecode(PyObject* module, PyObject* arg)
                 {
                     PyBuffer_Release(&src_py_buffer);
                     Py_DECREF(dst_py_obj_ptr);
-                    PyErr_SetString(CobsDecodeError, "Zero byte found in input");
+                    PyErr_SetString(CobsDecodeError, "zero byte found in input");
                     return NULL;
                 }
                 *dst_write_ptr++ = src_byte;

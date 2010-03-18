@@ -1,20 +1,31 @@
-------------
-Introduction
-------------
+========================================
+Consistent Overhead Byte Stuffing (COBS)
+========================================
 
-This is a Python module providing Consistent Overhead Byte Stuffing (COBS)
-encoding and decoding.
+Python functions for encoding and decoding COBS.
 
-Functions are provided for encoding and decoding according to the basic COBS
-method. The COBS variant "Zero Pair Elimination" (ZPE) is not implemented.
+-----
+Intro
+-----
 
-A pure Python implementation and a C extension implementation are provided.
-If the C extension is not available for some reason, the pure Python version
-will be used.
+Functions are provided for encoding and decoding according to
+the basic COBS method.  The COBS variant "Zero Pair Elimination" (ZPE)
+is not implemented.
 
-References:
+A pure Python implementation and a C extension implementation
+are provided. If the C extension is not available for some reason,
+the pure Python version will be used.
+
+This is fully implemented for Python 2.6. It is partially
+implemented for Python 3.1--the C extension is working, but the
+pure Python code is not.
+
+
+References
+``````````
 
     http://www.stuartcheshire.org/papers/COBSforSIGCOMM/
+
     http://www.stuartcheshire.org/papers/COBSforToN.pdf
 
 
@@ -22,19 +33,17 @@ References:
 Installation
 ------------
 
-The cobs package is installed using distutils.  If you have the tools
+The cobs package is installed using ``distutils``.  If you have the tools
 installed to build a Python extension module, run the following command::
 
     python setup.py install
 
-NOTE: The version for Python 3.x is in the py3 directory.  The install process
-is the same but you need to use the 3.x interpreter.
 
 ------------
 Unit Testing
 ------------
 
-Basic unit testing is in the ``testing`` subdirectory. To run it::
+Basic unit testing is in the ``test`` subdirectory. To run it::
 
     python test_cobs.py
 

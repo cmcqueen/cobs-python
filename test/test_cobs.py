@@ -16,6 +16,7 @@ test_strings = [
     b"12345\x006789\x00",
     b"\x00",
     b"\x00\x00",
+    b"\x00\x00\x00",
     bytes(bytearray(range(1, 254))),
     bytes(bytearray(range(1, 255))),
     bytes(bytearray(range(1, 256))),
@@ -33,9 +34,13 @@ def test():
         encoded = cobs.encode(test_string)
 #        print(repr(encoded))
         if 1:
-            decoded = cobs.decode(encoded)
+            try:
+                decoded = cobs.decode(encoded)
+            except Exception:
+                print("Original:\n    %s\nEncoded:\n    %s" % (repr(test_string), repr(encoded)))
+                raise
             if decoded != test_string:
-                raise Exception("Original doesn't match with decoded. Original %s, decoded %s" % (repr(test_string), repr(decoded)))
+                raise Exception("Original doesn't match with decoded. Original:\n    %s\nDecoded:\n    %s" % (repr(test_string), repr(decoded)))
 
     # Test decode errors
     for test_string in decode_error_test_strings:
@@ -44,7 +49,7 @@ def test():
         except cobs.DecodeError:
             pass
         else:
-            raise Exception("Didn't raise a DecodeError exception for string %s" % repr(test_string))
+            raise Exception("Didn't raise a DecodeError exception for string:\n    %s" % repr(test_string))
 
     print("All tests passed")
 

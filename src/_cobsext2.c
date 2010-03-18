@@ -218,7 +218,7 @@ cobsdecode(PyObject* self, PyObject* args)
             if (len_code == 0)
             {
                 Py_DECREF(dst_py_obj_ptr);
-                PyErr_SetString(CobsDecodeError, "Zero byte found in input");
+                PyErr_SetString(CobsDecodeError, "zero byte found in input");
                 return NULL;
             }
             len_code--;
@@ -227,7 +227,7 @@ cobsdecode(PyObject* self, PyObject* args)
             if (len_code > remaining_bytes)
             {
                 Py_DECREF(dst_py_obj_ptr);
-                PyErr_SetString(CobsDecodeError, "Not enough input bytes for length code");
+                PyErr_SetString(CobsDecodeError, "not enough input bytes for length code");
                 return NULL;
             }
 
@@ -237,7 +237,7 @@ cobsdecode(PyObject* self, PyObject* args)
                 if (src_byte == 0)
                 {
                     Py_DECREF(dst_py_obj_ptr);
-                    PyErr_SetString(CobsDecodeError, "Zero byte found in input");
+                    PyErr_SetString(CobsDecodeError, "zero byte found in input");
                     return NULL;
                 }
                 *dst_write_ptr++ = src_byte;

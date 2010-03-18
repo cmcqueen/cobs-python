@@ -9,38 +9,11 @@ if sys.version_info[0] == 2:
 elif sys.version_info[0] == 3:
     extension_filename = 'src/_cobsext3.c'
 
-long_description = """
-========================================
-Consistent Overhead Byte Stuffing (COBS)
-========================================
-
-Python functions for encoding and decoding COBS.
-
------
-Intro
------
-
-Functions are provided for encoding and decoding according to
-the basic COBS method.  The COBS variant "Zero Pair Elimination" (ZPE)
-is not implemented.
-
-A pure Python implementation and a C extension implementation
-are provided. If the C extension is not available for some reason,
-the pure Python version will be used.
-
-This is fully implemented for Python 2.6. It is partially
-implemented for Python 3.1--the C extension is working, but the
-pure Python code is not.
-
-
-References
-``````````
-
-    http://www.stuartcheshire.org/papers/COBSforSIGCOMM/
-
-    http://www.stuartcheshire.org/papers/COBSforToN.pdf
-
-"""
+if sys.version_info[0] == 2:
+    if sys.version_info[1] >= 6:
+        cobs_package_dir = 'cobs'
+elif sys.version_info[0] == 3:
+    cobs_package_dir = 'cobs3'
 
 setup(
     name='cobs',
@@ -50,11 +23,14 @@ setup(
     author_email='python@craig.mcqueen.id.au',
     url='http://bitbucket.org/cmcqueen1975/cobs-python/',
     packages=['cobs'],
+    package_dir={
+        'cobs' : cobs_package_dir 
+    },
     ext_modules=[
         Extension('cobs._cobsext', [extension_filename, ]),
     ],
 
-    long_description=long_description,
+    long_description=open('README.txt').read(),
 
     license="MIT",
     classifiers=[
