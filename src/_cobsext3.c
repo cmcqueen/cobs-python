@@ -47,6 +47,9 @@
 #endif
 
 
+#define GETSTATE(M) ((struct module_state *) PyModule_GetState(M))
+
+
 /*
  * Given a PyObject* obj, fill in the Py_buffer* viewp with the result
  * of PyObject_GetBuffer.  Sets and exception and issues a return NULL
@@ -75,21 +78,36 @@
 
 
 /*****************************************************************************
- * Variables
+ * Types
  ****************************************************************************/
 
-/*
- * cobs.DecodeError exception class.
- */
-static PyObject *CobsDecodeError;
+struct module_state
+{
+    /* cobs.DecodeError exception class. */
+    PyObject * CobsDecodeError;
+};
 
 
 /*****************************************************************************
  * Functions
  ****************************************************************************/
 
+static int cobs_traverse(PyObject *m, visitproc visit, void *arg)
+{
+    Py_VISIT(GETSTATE(m)->CobsDecodeError);
+    return 0;
+}
+
+
+static int cobs_clear(PyObject *m)
+{
+    Py_CLEAR(GETSTATE(m)->CobsDecodeError);
+    return 0;
+}
+
+
 /*
- * Encode
+ * cobs.encode
  */
 PyDoc_STRVAR(cobsencode__doc__,
 "Encode a string using Consistent Overhead Byte Stuffing (COBS).\n"
@@ -102,7 +120,7 @@ PyDoc_STRVAR(cobsencode__doc__,
 "An empty string is encoded to '\\x01'.");
 
 /*
- * This Python function uses arguments method METH_O,
+ * This Python C extension function uses arguments method METH_O,
  * meaning the arg parameter contains the single parameter
  * to the function.
  */
@@ -197,7 +215,7 @@ cobsencode(PyObject* module, PyObject* arg)
 
 
 /*
- * Decode
+ * cobs.decode
  */
 PyDoc_STRVAR(cobsdecode__doc__,
 "Decode a string using Consistent Overhead Byte Stuffing (COBS).\n"
@@ -209,7 +227,7 @@ PyDoc_STRVAR(cobsdecode__doc__,
 "is invalid.");
 
 /*
- * This Python function uses arguments method METH_O,
+ * This Python C extension function uses arguments method METH_O,
  * meaning the arg parameter contains the single parameter
  * to the function.
  */
@@ -262,7 +280,7 @@ cobsdecode(PyObject* module, PyObject* arg)
             {
                 PyBuffer_Release(&src_py_buffer);
                 Py_DECREF(dst_py_obj_ptr);
-                PyErr_SetString(CobsDecodeError, "zero byte found in input");
+                PyErr_SetString(GETSTATE(module)->CobsDecodeError, "zero byte found in input");
                 return NULL;
             }
             len_code--;
@@ -272,7 +290,7 @@ cobsdecode(PyObject* module, PyObject* arg)
             {
                 PyBuffer_Release(&src_py_buffer);
                 Py_DECREF(dst_py_obj_ptr);
-                PyErr_SetString(CobsDecodeError, "not enough input bytes for length code");
+                PyErr_SetString(GETSTATE(module)->CobsDecodeError, "not enough input bytes for length code");
                 return NULL;
             }
 
@@ -283,7 +301,7 @@ cobsdecode(PyObject* module, PyObject* arg)
                 {
                     PyBuffer_Release(&src_py_buffer);
                     Py_DECREF(dst_py_obj_ptr);
-                    PyErr_SetString(CobsDecodeError, "zero byte found in input");
+                    PyErr_SetString(GETSTATE(module)->CobsDecodeError, "zero byte found in input");
                     return NULL;
                 }
                 *dst_write_ptr++ = src_byte;
@@ -331,11 +349,14 @@ static PyMethodDef methodTable[] =
 static struct PyModuleDef moduleDef =
 {
     PyModuleDef_HEAD_INIT,
-    "_cobsext",         // name of module
-    module__doc__,      // module documentation
-    -1,                 // size of per-interpreter state of the module,
-                        // or -1 if the module keeps state in global variables.
-    methodTable
+    "_cobsext",                     // name of module
+    module__doc__,                  // module documentation
+    sizeof(struct module_state),    // size of per-interpreter state of the module,
+    methodTable,
+    NULL,
+    cobs_traverse,
+    cobs_clear,
+    NULL
 };
 
 
@@ -346,18 +367,28 @@ static struct PyModuleDef moduleDef =
 PyMODINIT_FUNC
 PyInit__cobsext(void)
 {
-    PyObject *m;
+    PyObject *              module;
+    struct module_state *   st;
+
 
     /* Initialise cobs module C extension cobs._cobsext */
-    m = PyModule_Create(&moduleDef);
-    if (m == NULL)
+    module = PyModule_Create(&moduleDef);
+    if (module == NULL)
+    {
         return NULL;
+    }
+
+    st = GETSTATE(module);
 
     /* Initialise cobs.DecodeError exception class. */
-    CobsDecodeError = PyErr_NewException("cobs.DecodeError", NULL, NULL);
-    Py_INCREF(CobsDecodeError);
-    PyModule_AddObject(m, "DecodeError", CobsDecodeError);
+    st->CobsDecodeError = PyErr_NewException("cobs.DecodeError", NULL, NULL);
+    if (st->CobsDecodeError == NULL)
+    {
+        Py_DECREF(module);
+        return NULL;
+    }
+    PyModule_AddObject(module, "DecodeError", st->CobsDecodeError);
 
-    return m;
+    return module;
 }
 
