@@ -18,8 +18,6 @@ def encode(in_bytes):
     string will be expanded slightly, by a predictable amount.
     
     An empty string is encoded to '\\x01'"""
-    if isinstance(in_bytes, unicode):
-        raise TypeError('Unicode-objects must be encoded as bytes first')
     final_zero = True
     out_bytes = []
     idx = 0
@@ -51,8 +49,6 @@ def decode(in_bytes):
     
     A cobs.DecodeError exception may be raised if the encoded data
     is invalid."""
-    if isinstance(in_bytes, unicode):
-        raise TypeError('Unicode-objects are not supported; string objects only')
     out_bytes = []
     idx = 0
 
