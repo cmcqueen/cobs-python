@@ -8,6 +8,7 @@ This version is for Python 3.x.
 class DecodeError(Exception):
     pass
 
+
 def _get_buffer_view(in_bytes):
     mv = memoryview(in_bytes)
     if mv.ndim > 1 or mv.itemsize > 1:

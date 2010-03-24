@@ -18,30 +18,28 @@ def encode(in_bytes):
     string will be expanded slightly, by a predictable amount.
     
     An empty string is encoded to '\\x01'"""
+    if isinstance(in_bytes, unicode):
+        raise TypeError('Unicode-objects must be encoded as bytes first')
     final_zero = True
     out_bytes = bytearray()
-    collect_bytes = bytearray()
     idx = 0
-    while True:
-        length = in_bytes.find(b'\x00', idx, idx + 0xFE)
-        if length < 0:
-            remaining_length = len(in_bytes) - idx
-            if remaining_length > 0xFE:
-                length = 0xFE
-            else:
-                length = remaining_length
-                out_bytes.append(length + 1)
-                out_bytes += in_bytes[idx:idx + length]
-                break
+    search_start_idx = 0
+    for in_char in in_bytes:
+        if in_char == b'\x00':
+            final_zero = True
+            out_bytes.append(idx - search_start_idx + 1)
+            out_bytes += in_bytes[search_start_idx:idx]
+            search_start_idx = idx + 1
         else:
-            length = length - idx
-        if length == 0xFE:
-            new_idx = idx + length
-        else:
-            new_idx = idx + length + 1
-        out_bytes.append(length + 1)
-        out_bytes += in_bytes[idx:idx + length]
-        idx = new_idx
+            if idx - search_start_idx == 0xFD:
+                final_zero = False
+                out_bytes.append(0xFF)
+                out_bytes += in_bytes[search_start_idx:idx+1]
+                search_start_idx = idx + 1
+        idx += 1
+    if idx != search_start_idx or final_zero:
+        out_bytes.append(idx - search_start_idx + 1)
+        out_bytes += in_bytes[search_start_idx:idx]
     return bytes(out_bytes)
 
 
@@ -53,6 +51,8 @@ def decode(in_bytes):
     
     A cobs.DecodeError exception may be raised if the encoded data
     is invalid."""
+    if isinstance(in_bytes, unicode):
+        raise TypeError('Unicode-objects are not supported; string objects only')
     out_bytes = bytearray()
     idx = 0
 
@@ -60,13 +60,16 @@ def decode(in_bytes):
         while True:
             length = ord(in_bytes[idx])
             if length == 0:
-                raise DecodeError("Zero byte found in input")
+                raise DecodeError("zero byte found in input")
             idx += 1
             end = idx + length - 1
-            out_bytes += in_bytes[idx:end]
+            copy_bytes = in_bytes[idx:end]
+            if b'\x00' in copy_bytes:
+                raise DecodeError("zero byte found in input")
+            out_bytes += copy_bytes
             idx = end
             if idx > len(in_bytes):
-                raise DecodeError("Not enough input bytes for length code")
+                raise DecodeError("not enough input bytes for length code")
             if idx < len(in_bytes):
                 if length < 0xFF:
                     out_bytes.append(0)

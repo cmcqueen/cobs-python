@@ -27,18 +27,12 @@ References
 Supported Python Versions
 -------------------------
 
-Python >= 2.6 and 3.x are supported, and have both a C extension and a pure
+Python >= 2.4 and 3.x are supported, and have both a C extension and a pure
 Python implementation.
 
-However the installer is not smart enough to install the pure Python
-implementation when the C extension cannot be compiled.
+Python versions < 2.4 might work, but have not been tested. Python 3.0 has
+also not been tested.
 
-The C extension seems to work in Python 2.4 and 2.5. However, it has not been
-tested much. There is no pure Python implementation for these versions. The unit
-test file in the ``test`` directory also does not run under Python 2.4 and 2.5.
-I don't know how much interest there is for these older Python versions. Please
-let me know if you would like support for these older Python versions to be
-improved.
 
 ------------
 Installation
