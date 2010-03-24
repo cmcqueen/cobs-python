@@ -3,9 +3,10 @@ Consistent Overhead Byte Stuffing (COBS)
 
 Unit Tests
 
-This version is for Python 2.6.
+This version is for Python 2.x.
 """
 
+from array import array
 import unittest
 
 import cobs
@@ -24,24 +25,24 @@ def non_zero_generator(length):
         yield non_zeros.next()
 
 def non_zero_bytes(length):
-    return b''.join(chr(i) for i in non_zero_generator(length))
+    return ''.join(chr(i) for i in non_zero_generator(length))
 
 
 class PredefinedEncodingsTests(unittest.TestCase):
     predefined_encodings = [
-        [ b"",                                          b"\x01"                                                     ],
-        [ b"1",                                         b"\x021"                                                    ],
-        [ b"12345",                                     b"\x0612345"                                                ],
-        [ b"12345\x006789",                             b"\x0612345\x056789"                                        ],
-        [ b"\x0012345\x006789",                         b"\x01\x0612345\x056789"                                    ],
-        [ b"12345\x006789\x00",                         b"\x0612345\x056789\x01"                                    ],
-        [ b"\x00",                                      b"\x01\x01"                                                 ],
-        [ b"\x00\x00",                                  b"\x01\x01\x01"                                             ],
-        [ b"\x00\x00\x00",                              b"\x01\x01\x01\x01"                                         ],
-        [ bytes(bytearray(xrange(1, 254))),              bytes(b"\xfe" + bytearray(xrange(1, 254)))                   ],
-        [ bytes(bytearray(xrange(1, 255))),              bytes(b"\xff" + bytearray(xrange(1, 255)))                   ],
-        [ bytes(bytearray(xrange(1, 256))),              bytes(b"\xff" + bytearray(xrange(1, 255)) + b"\x02\xff")     ],
-        [ bytes(bytearray(xrange(0, 256))),              bytes(b"\x01\xff" + bytearray(xrange(1, 255)) + b"\x02\xff") ],
+        [ "",                                           "\x01"                                                      ],
+        [ "1",                                          "\x021"                                                     ],
+        [ "12345",                                      "\x0612345"                                                 ],
+        [ "12345\x006789",                              "\x0612345\x056789"                                         ],
+        [ "\x0012345\x006789",                          "\x01\x0612345\x056789"                                     ],
+        [ "12345\x006789\x00",                          "\x0612345\x056789\x01"                                     ],
+        [ "\x00",                                       "\x01\x01"                                                  ],
+        [ "\x00\x00",                                   "\x01\x01\x01"                                              ],
+        [ "\x00\x00\x00",                               "\x01\x01\x01\x01"                                          ],
+        [ array('B', range(1, 254)).tostring(),         "\xfe" + array('B', range(1, 254)).tostring()               ],
+        [ array('B', range(1, 255)).tostring(),         "\xff" + array('B', range(1, 255)).tostring()               ],
+        [ array('B', range(1, 256)).tostring(),         "\xff" + array('B', range(1, 255)).tostring() + "\x02\xff"  ],
+        [ array('B', range(0, 256)).tostring(),         "\x01\xff" + array('B', range(1, 255)).tostring() + "\x02\xff" ],
     ]
 
     def test_predefined_encodings(self):
@@ -57,10 +58,10 @@ class PredefinedEncodingsTests(unittest.TestCase):
 
 class PredefinedDecodeErrorTests(unittest.TestCase):
     decode_error_test_strings = [
-        b"\x00",
-        b"\x05123",
-        b"\x051234\x00",
-        b"\x0512\x004",
+        "\x00",
+        "\x05123",
+        "\x051234\x00",
+        "\x0512\x004",
     ]
 
     def test_predefined_decode_error(self):
@@ -71,9 +72,9 @@ class PredefinedDecodeErrorTests(unittest.TestCase):
 class ZerosTest(unittest.TestCase):
     def test_zeros(self):
         for length in xrange(520):
-            test_string = b'\x00' * length
+            test_string = '\x00' * length
             encoded = cobs.encode(test_string)
-            expected_encoded = b'\x01' * (length + 1)
+            expected_encoded = '\x01' * (length + 1)
             self.assertEqual(encoded, expected_encoded, "encoding zeros failed for length %d" % length)
             decoded = cobs.decode(encoded)
             self.assertEqual(decoded, test_string, "decoding zeros failed for length %d" % length)
@@ -86,7 +87,7 @@ class NonZerosTest(unittest.TestCase):
             data_block = in_bytes[i: i+254]
             out_list.append(chr(len(data_block) + 1))
             out_list.append(data_block)
-        return b''.join(out_list)
+        return ''.join(out_list)
 
     def test_non_zeros(self):
         for length in xrange(1, 1000):
@@ -100,12 +101,12 @@ class NonZerosTest(unittest.TestCase):
     def test_non_zeros_and_trailing_zero(self):
         for length in xrange(1, 1000):
             non_zeros_string = non_zero_bytes(length)
-            test_string = non_zeros_string + b'\x00'
+            test_string = non_zeros_string + '\x00'
             encoded = cobs.encode(test_string)
             if (len(non_zeros_string) % 254) == 0:
-                expected_encoded = self.simple_encode_non_zeros_only(non_zeros_string) + b'\x01\x01'
+                expected_encoded = self.simple_encode_non_zeros_only(non_zeros_string) + '\x01\x01'
             else:
-                expected_encoded = self.simple_encode_non_zeros_only(non_zeros_string) + b'\x01'
+                expected_encoded = self.simple_encode_non_zeros_only(non_zeros_string) + '\x01'
             self.assertEqual(encoded, expected_encoded,
                              "encoded != expected_encoded for length %d\nencoded: %s\nexpected_encoded: %s" %
                              (length, repr(encoded), repr(expected_encoded)))
