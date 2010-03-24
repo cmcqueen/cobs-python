@@ -19,7 +19,7 @@ elif sys.version_info[0] == 3:
 
 setup(
     name='cobs',
-    version='0.6.1',
+    version='0.7.0',
     description='Consistent Overhead Byte Stuffing (COBS)',
     author='Craig McQueen',
     author_email='python@craig.mcqueen.id.au',
@@ -36,12 +36,16 @@ setup(
 
     license="MIT",
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.4',
+        'Programming Language :: Python :: 2.5',
         'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.1',
         'Topic :: Communications',
     ],
 )
