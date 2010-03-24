@@ -30,19 +30,19 @@ def non_zero_bytes(length):
 
 class PredefinedEncodingsTests(unittest.TestCase):
     predefined_encodings = [
-        [ "",                                           "\x01"                                                      ],
-        [ "1",                                          "\x021"                                                     ],
-        [ "12345",                                      "\x0612345"                                                 ],
-        [ "12345\x006789",                              "\x0612345\x056789"                                         ],
-        [ "\x0012345\x006789",                          "\x01\x0612345\x056789"                                     ],
-        [ "12345\x006789\x00",                          "\x0612345\x056789\x01"                                     ],
-        [ "\x00",                                       "\x01\x01"                                                  ],
-        [ "\x00\x00",                                   "\x01\x01\x01"                                              ],
-        [ "\x00\x00\x00",                               "\x01\x01\x01\x01"                                          ],
-        [ array('B', range(1, 254)).tostring(),         "\xfe" + array('B', range(1, 254)).tostring()               ],
-        [ array('B', range(1, 255)).tostring(),         "\xff" + array('B', range(1, 255)).tostring()               ],
-        [ array('B', range(1, 256)).tostring(),         "\xff" + array('B', range(1, 255)).tostring() + "\x02\xff"  ],
-        [ array('B', range(0, 256)).tostring(),         "\x01\xff" + array('B', range(1, 255)).tostring() + "\x02\xff" ],
+        [ "",                                       "\x01"                                                          ],
+        [ "1",                                      "\x021"                                                         ],
+        [ "12345",                                  "\x0612345"                                                     ],
+        [ "12345\x006789",                          "\x0612345\x056789"                                             ],
+        [ "\x0012345\x006789",                      "\x01\x0612345\x056789"                                         ],
+        [ "12345\x006789\x00",                      "\x0612345\x056789\x01"                                         ],
+        [ "\x00",                                   "\x01\x01"                                                      ],
+        [ "\x00\x00",                               "\x01\x01\x01"                                                  ],
+        [ "\x00\x00\x00",                           "\x01\x01\x01\x01"                                              ],
+        [ array('B', range(1, 254)).tostring(),     "\xfe" + array('B', range(1, 254)).tostring()                   ],
+        [ array('B', range(1, 255)).tostring(),     "\xff" + array('B', range(1, 255)).tostring()                   ],
+        [ array('B', range(1, 256)).tostring(),     "\xff" + array('B', range(1, 255)).tostring() + "\x02\xff"      ],
+        [ array('B', range(0, 256)).tostring(),     "\x01\xff" + array('B', range(1, 255)).tostring() + "\x02\xff"  ],
     ]
 
     def test_predefined_encodings(self):
