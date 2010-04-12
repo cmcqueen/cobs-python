@@ -48,12 +48,17 @@ installed to build a Python extension module, run the following command::
 Unit Testing
 ------------
 
-Basic unit testing is in the ``test`` subdirectory. To run it::
+Basic unit testing is in the module ``cobs.test``. To run it on Python >=2.5::
+
+    python -m cobs.test
+
+Alternatively, in the ``test`` directory run::
 
     python test_cobs.py
+
 
 -------
 License
 -------
 
-See LICENSE.txt.
+The code is released under the MIT license. See LICENSE.txt for details.
