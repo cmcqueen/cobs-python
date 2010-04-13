@@ -6,6 +6,7 @@ Unit Tests
 This version is for Python 3.x.
 """
 
+from array import array
 import random
 import unittest
 
@@ -128,6 +129,58 @@ class RandomDataTest(unittest.TestCase):
             decoded = cobs.decode(encoded)
             self.assertEqual(decoded, test_string,
                              "encoding and decoding random data failed:\noriginal: %s\ndecoded: %s" % (repr(test_string), repr(decoded)))
+
+
+class InputTypesTest(unittest.TestCase):
+    predefined_encodings = [
+        [ b"",                                  b"\x01"                                                         ],
+        [ b"1",                                 b"\x021"                                                        ],
+        [ b"12345",                             b"\x0612345"                                                    ],
+        [ b"12345\x006789",                     b"\x0612345\x056789"                                            ],
+        [ b"\x0012345\x006789",                 b"\x01\x0612345\x056789"                                        ],
+        [ b"12345\x006789\x00",                 b"\x0612345\x056789\x01"                                        ],
+    ]
+
+    def test_unicode_string(self):
+        """Test that Unicode strings are not encoded or decoded.
+        They should raise a TypeError."""
+        for (test_string, expected_encoded_string) in self.predefined_encodings:
+            unicode_test_string = test_string.decode('latin')
+            self.assertRaises(TypeError, cobs.encode, unicode_test_string)
+            unicode_encoded_string = expected_encoded_string.decode('latin')
+            self.assertRaises(TypeError, cobs.decode, unicode_encoded_string)
+
+    def test_bytearray(self):
+        """Test that bytearray objects can be encoded or decoded."""
+        for (test_string, expected_encoded_string) in self.predefined_encodings:
+            bytearray_test_string = bytearray(test_string)
+            encoded = cobs.encode(bytearray_test_string)
+            self.assertEqual(encoded, expected_encoded_string)
+            bytearray_encoded_string = bytearray(expected_encoded_string)
+            decoded = cobs.decode(bytearray_encoded_string)
+            self.assertEqual(decoded, test_string)
+
+    def test_array_of_bytes(self):
+        """Test that array of bytes objects (array('B', ...)) can be encoded or decoded."""
+        for (test_string, expected_encoded_string) in self.predefined_encodings:
+            array_test_string = array('B', test_string)
+            encoded = cobs.encode(array_test_string)
+            self.assertEqual(encoded, expected_encoded_string)
+            array_encoded_string = array('B', expected_encoded_string)
+            decoded = cobs.decode(array_encoded_string)
+            self.assertEqual(decoded, test_string)
+
+    def test_array_of_half_words(self):
+        """Test that array of half-word objects (array('H', ...)) are not encoded or decoded.
+        They should raise a BufferError."""
+        # Array typecodes for types with size greater than 1.
+        # Don't include 'u' for Unicode because it expects a Unicode initialiser.
+        typecodes = [ 'H', 'h', 'i', 'I', 'l', 'L', 'f', 'd' ]
+        for typecode in typecodes:
+            array_test_string = array(typecode, [ 49, 50, 51, 52, 53 ])
+            self.assertRaises(BufferError, cobs.encode, array_test_string)
+            array_encoded_string = array(typecode, [6, 49, 50, 51, 52, 53 ])
+            self.assertRaises(BufferError, cobs.decode, array_encoded_string)
 
 
 def runtests():
