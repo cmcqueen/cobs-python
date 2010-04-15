@@ -7,12 +7,18 @@ the basic COBS method.
 The COBS variant "Zero Pair Elimination" (ZPE) is not
 implemented.
 
-A C extension implementation only is provided.
+A pure Python implementation and a C extension implementation
+are provided. If the C extension is not available for some reason,
+the pure Python version will be used.
 
 References:
     http://www.stuartcheshire.org/papers/COBSforSIGCOMM/
     http://www.stuartcheshire.org/papers/COBSforToN.pdf
 """
 
-from cobs._cobsext import *
-_using_extension = True
+try:
+    from cobs._cobsext import *
+    _using_extension = True
+except ImportError:
+    from cobs._cobspy import *
+    _using_extension = False
