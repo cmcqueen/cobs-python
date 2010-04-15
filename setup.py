@@ -29,7 +29,7 @@ setup(
         'cobs' : cobs_package_dir 
     },
     ext_modules=[
-        Extension('cobs._cobsext', [extension_filename, ]),
+        Extension('cobs._cobs_ext', [extension_filename, ]),
     ],
 
     long_description=open('README.txt').read(),

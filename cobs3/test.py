@@ -11,7 +11,7 @@ import random
 import unittest
 
 import cobs
-#import cobs._cobspy as cobs
+#import cobs._cobs_py as cobs
 
 
 def infinite_non_zero_generator():

@@ -76,7 +76,7 @@ static PyObject *CobsDecodeError;
 /*
  * Encode
  */
-PyDoc_STRVAR(cobsencode__doc__,
+PyDoc_STRVAR(cobs_encode__doc__,
 "Encode a string using Consistent Overhead Byte Stuffing (COBS).\n"
 "\n"
 "Input is any byte string. Output is also a byte string.\n"
@@ -87,7 +87,7 @@ PyDoc_STRVAR(cobsencode__doc__,
 "An empty string is encoded to '\\x01'.");
 
 static PyObject*
-cobsencode(PyObject* self, PyObject* args)
+cobs_encode(PyObject* self, PyObject* args)
 {
     const char *    src_ptr;
     Py_ssize_t      src_len;
@@ -169,7 +169,7 @@ cobsencode(PyObject* self, PyObject* args)
 /*
  * Decode
  */
-PyDoc_STRVAR(cobsdecode__doc__,
+PyDoc_STRVAR(cobs_decode__doc__,
 "Decode a string using Consistent Overhead Byte Stuffing (COBS).\n"
 "\n"
 "Input should be a byte string that has been COBS encoded. Output\n"
@@ -179,7 +179,7 @@ PyDoc_STRVAR(cobsdecode__doc__,
 "is invalid.");
 
 static PyObject*
-cobsdecode(PyObject* self, PyObject* args)
+cobs_decode(PyObject* self, PyObject* args)
 {
     const char *            src_ptr;
     Py_ssize_t              src_len;
@@ -273,8 +273,8 @@ PyDoc_STRVAR(module__doc__,
 
 static PyMethodDef methodTable[] =
 {
-    { "encode", cobsencode, METH_VARARGS, cobsencode__doc__ },
-    { "decode", cobsdecode, METH_VARARGS, cobsdecode__doc__ },
+    { "encode", cobs_encode, METH_VARARGS, cobs_encode__doc__ },
+    { "decode", cobs_decode, METH_VARARGS, cobs_decode__doc__ },
     { NULL, NULL, 0, NULL }
 };
 
@@ -284,12 +284,12 @@ static PyMethodDef methodTable[] =
  ****************************************************************************/
 
 PyMODINIT_FUNC
-init_cobsext(void)
+init_cobs_ext(void)
 {
     PyObject *m;
 
     /* Initialise cobs module C extension cobs._cobsext */
-    m = Py_InitModule3("_cobsext", methodTable, module__doc__);
+    m = Py_InitModule3("_cobs_ext", methodTable, module__doc__);
     if (m == NULL)
         return;
 
