@@ -19,7 +19,7 @@ elif sys.version_info[0] == 3:
 
 setup(
     name='cobs',
-    version='0.7.0',
+    version='0.7.9',
     description='Consistent Overhead Byte Stuffing (COBS)',
     author='Craig McQueen',
     author_email='python@craig.mcqueen.id.au',
