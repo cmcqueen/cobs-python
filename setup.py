@@ -5,9 +5,9 @@ from distutils.core import setup
 from distutils.extension import Extension
 
 if sys.version_info[0] == 2:
-    extension_filename = 'src/_cobs_ext2.c'
+    cobs_extension_filename = 'src/_cobs_ext2.c'
 elif sys.version_info[0] == 3:
-    extension_filename = 'src/_cobs_ext3.c'
+    cobs_extension_filename = 'src/_cobs_ext3.c'
 
 if sys.version_info[0] == 2:
     if sys.version_info[1] >= 6:
@@ -29,7 +29,7 @@ setup(
         'cobs' : cobs_package_dir 
     },
     ext_modules=[
-        Extension('cobs._cobs_ext', [extension_filename, ]),
+        Extension('cobs._cobs_ext', [cobs_extension_filename, ]),
     ],
 
     long_description=open('README.txt').read(),
