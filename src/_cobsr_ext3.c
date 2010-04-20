@@ -139,7 +139,7 @@ cobsr_encode(PyObject* module, PyObject* arg)
     char *          dst_buf_ptr;
     char *          dst_code_write_ptr;
     char *          dst_write_ptr;
-    char            src_byte;
+    unsigned char   src_byte;
     unsigned char   search_len;
     char            final_zero;
     PyObject *      dst_py_obj_ptr;
