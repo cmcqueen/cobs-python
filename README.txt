@@ -8,14 +8,14 @@ Python functions for encoding and decoding COBS.
 Intro
 -----
 
-Functions are provided for encoding and decoding according to the basic COBS
-method.
+The ``cobs`` module is provided, which contains functions for encoding and
+decoding according to the basic COBS method [#ieeeton]_.
 
-A variant of COBS is also provided, which I'm calling "`Consistent Overhead
-Byte Stuffing/Reduced`_" (COBS/R), in the ``cobsr`` module.
+A variant of COBS, which I'm calling "`Consistent Overhead Byte
+Stuffing/Reduced`_" (COBS/R), is also provided in the ``cobsr`` module.
 
-The COBS variant "Zero Pair Elimination" (ZPE) and "Zero Run Elimination" (ZRE)
-is not implemented.
+The COBS variants "Zero Pair Elimination" (ZPE) [#ieeeton]_ and "Zero Run Elimination"
+(ZRE) [#ppp]_ are not implemented.
 
 A pure Python implementation and a C extension implementation are provided. If
 the C extension is not available for some reason, the pure Python version will
@@ -23,13 +23,6 @@ be used.
 
 References
 ``````````
-
-.. [#sigcomm]   | `Consistent Overhead Byte Stuffing`__
-                | Stuart Cheshire and Mary Baker, Computer Science Department, Stanford University
-                | SIGCOMM '97 - Cannes, France, September 1997
-
-.. __:
-.. _Consistent Overhead Byte Stuffing (for SigCOMM): http://www.stuartcheshire.org/papers/COBSforSIGCOMM/
 
 .. [#ieeeton]   | `Consistent Overhead Byte Stuffing`__
                 | Stuart Cheshire and Mary Baker
@@ -94,8 +87,8 @@ The code is released under the MIT license. See LICENSE.txt for details.
 Consistent Overhead Byte Stuffing/Reduced (COBS/R)
 --------------------------------------------------
 
-A modification of COBS is also provided, which I'm calling "COBS/Reduced"
-(COBS/R), in the ``cobsr`` module. Its purpose is to save one byte from
+A modification of COBS, which I'm calling "COBS/Reduced" (COBS/R), is also
+provided in the ``cobsr`` module. Its purpose is to save one byte from
 the encoded form in some cases. Plain COBS encoding always has a +1 byte
 encoding overhead. COBS/R can sometimes avoid the +1 byte, which can be
 a useful savings if it is mostly small messages that are being encoded.
@@ -109,18 +102,18 @@ with the final data byte, whenever the value of the final data byte is
 greater than or equal to what the final length value would be. This can
 be unambiguously decoded.
 
-Examples:
-`````````
+Examples
+````````
 
-All examples are in hex.
+The byte values in the examples are in hex.
 
 First example:
 
 Input:
 
-==  ==  ==  ==  ==  ==
-2F  A2  00  92  73  02
-==  ==  ==  ==  ==  ==
+======  ======  ======  ======  ======  ======
+2F      A2      00      92      73      02
+======  ======  ======  ======  ======  ======
 
 This example is encoded the same in COBS and COBS/R. Encoded (length bytes are bold):
 
@@ -135,11 +128,11 @@ is greater than what the length byte would be.
 
 Input:
 
-==  ==  ==  ==  ==  ==
-2F  A2  00  92  73  26
-==  ==  ==  ==  ==  ==
+======  ======  ======  ======  ======  ======
+2F      A2      00      92      73      26
+======  ======  ======  ======  ======  ======
 
-Encoded in COBS (length bytes are bold):
+Encoded in plain COBS (length bytes are bold):
 
 ======  ======  ======  ======  ======  ======  ======
 **03**  2F      A2      **04**  92      73      26
@@ -159,4 +152,4 @@ overhead of the COBS encoding.
 The decoder detects this variation on the encoding simply by detecting that
 the length code is greater than the number of remaining bytes. That situation
 would be a decoding error in regular COBS, but in COBS/R it is used to save
-an encoded byte.
+one byte in the encoded form.
