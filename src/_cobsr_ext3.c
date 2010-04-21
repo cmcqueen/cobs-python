@@ -141,7 +141,6 @@ cobsr_encode(PyObject* module, PyObject* arg)
     char *          dst_write_ptr;
     unsigned char   src_byte;
     unsigned char   search_len;
-    char            final_zero;
     PyObject *      dst_py_obj_ptr;
 
 
@@ -169,33 +168,41 @@ cobsr_encode(PyObject* module, PyObject* arg)
     dst_code_write_ptr  = dst_buf_ptr;
     dst_write_ptr = dst_code_write_ptr + 1;
     search_len = 1;
-    final_zero = TRUE;
     src_byte = 0;
 
     /* Iterate over the source bytes */
-    while (src_ptr < src_end_ptr)
+    if (src_ptr < src_end_ptr)
     {
-        src_byte = *src_ptr++;
-        if (src_byte == 0)
+        for (;;)
         {
-            /* We found a zero byte */
-            *dst_code_write_ptr = (char) search_len;
-            dst_code_write_ptr = dst_write_ptr++;
-            search_len = 1;
-            final_zero = TRUE;
-        }
-        else
-        {
-            /* Copy the non-zero byte to the destination buffer */
-            *dst_write_ptr++ = src_byte;
-            search_len++;
-            if (search_len == 0xFF)
+            src_byte = *src_ptr++;
+            if (src_byte == 0)
             {
-                /* We have a long string of non-zero bytes */
+                /* We found a zero byte */
                 *dst_code_write_ptr = (char) search_len;
                 dst_code_write_ptr = dst_write_ptr++;
                 search_len = 1;
-                final_zero = FALSE;
+                if (src_ptr >= src_end_ptr)
+                {
+                    break;
+                }
+            }
+            else
+            {
+                /* Copy the non-zero byte to the destination buffer */
+                *dst_write_ptr++ = src_byte;
+                search_len++;
+                if (src_ptr >= src_end_ptr)
+                {
+                    break;
+                }
+                if (search_len == 0xFF)
+                {
+                    /* We have a long string of non-zero bytes */
+                    *dst_code_write_ptr = (char) search_len;
+                    dst_code_write_ptr = dst_write_ptr++;
+                    search_len = 1;
+                }
             }
         }
     }
@@ -213,21 +220,18 @@ cobsr_encode(PyObject* module, PyObject* arg)
      *
      * Update the pointer to calculate the final output length.
      */
-    if ((search_len > 1) || (final_zero != FALSE))
+    if (src_byte < search_len)
     {
-        if (src_byte < search_len)
-        {
-            /* Encoding same as plain COBS */
-            *dst_code_write_ptr = (char) search_len;
-            dst_code_write_ptr = dst_write_ptr;
-        }
-        else
-        {
-            /* Special COBS/R encoding: length code is final byte,
-             * and final byte is removed from data sequence. */
-            *dst_code_write_ptr = (char) src_byte;
-            dst_code_write_ptr = dst_write_ptr - 1;
-        }
+        /* Encoding same as plain COBS */
+        *dst_code_write_ptr = (char) search_len;
+        dst_code_write_ptr = dst_write_ptr;
+    }
+    else
+    {
+        /* Special COBS/R encoding: length code is final byte,
+         * and final byte is removed from data sequence. */
+        *dst_code_write_ptr = (char) src_byte;
+        dst_code_write_ptr = dst_write_ptr - 1;
     }
 
     /* Calculate the output length, from the value of dst_code_write_ptr */

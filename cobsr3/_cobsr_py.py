@@ -27,35 +27,30 @@ def encode(in_bytes):
     if isinstance(in_bytes, str):
         raise TypeError('Unicode-objects must be encoded as bytes first')
     in_bytes_mv = _get_buffer_view(in_bytes)
-    final_zero = True
     out_bytes = bytearray()
     idx = 0
     search_start_idx = 0
     for in_char in in_bytes_mv:
+        if idx - search_start_idx == 0xFE:
+            out_bytes.append(0xFF)
+            out_bytes += in_bytes_mv[search_start_idx:idx]
+            search_start_idx = idx
         if in_char == b'\x00':
-            final_zero = True
             out_bytes.append(idx - search_start_idx + 1)
             out_bytes += in_bytes_mv[search_start_idx:idx]
             search_start_idx = idx + 1
-        else:
-            if idx - search_start_idx == 0xFD:
-                final_zero = False
-                out_bytes.append(0xFF)
-                out_bytes += in_bytes_mv[search_start_idx:idx+1]
-                search_start_idx = idx + 1
         idx += 1
-    if idx != search_start_idx or final_zero:
-        try:
-            final_byte_value = ord(in_bytes_mv[-1])
-        except IndexError:
-            final_byte_value = 0
-        length_value = idx - search_start_idx + 1
-        if final_byte_value < length_value:
-            out_bytes.append(length_value)
-            out_bytes += in_bytes_mv[search_start_idx:idx]
-        else:
-            out_bytes.append(final_byte_value)
-            out_bytes += in_bytes_mv[search_start_idx:idx - 1]
+    try:
+        final_byte_value = ord(in_bytes_mv[-1])
+    except IndexError:
+        final_byte_value = 0
+    length_value = idx - search_start_idx + 1
+    if final_byte_value < length_value:
+        out_bytes.append(length_value)
+        out_bytes += in_bytes_mv[search_start_idx:idx]
+    else:
+        out_bytes.append(final_byte_value)
+        out_bytes += in_bytes_mv[search_start_idx:idx - 1]
     return bytes(out_bytes)
 
 

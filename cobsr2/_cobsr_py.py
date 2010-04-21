@@ -18,35 +18,30 @@ def encode(in_bytes):
     string will be expanded slightly, by a predictable amount.
     
     An empty string is encoded to '\\x01'"""
-    final_zero = True
     out_bytes = []
     idx = 0
     search_start_idx = 0
     for in_char in in_bytes:
+        if idx - search_start_idx == 0xFE:
+            out_bytes.append('\xFF')
+            out_bytes.append(in_bytes[search_start_idx:idx])
+            search_start_idx = idx
         if in_char == '\x00':
-            final_zero = True
             out_bytes.append(chr(idx - search_start_idx + 1))
             out_bytes.append(in_bytes[search_start_idx:idx])
             search_start_idx = idx + 1
-        else:
-            if idx - search_start_idx == 0xFD:
-                final_zero = False
-                out_bytes.append('\xFF')
-                out_bytes.append(in_bytes[search_start_idx:idx+1])
-                search_start_idx = idx + 1
         idx += 1
-    if idx != search_start_idx or final_zero:
-        try:
-            final_byte = in_bytes[-1]
-        except IndexError:
-            final_byte = '\x00'
-        length_value = idx - search_start_idx + 1
-        if ord(final_byte) < length_value:
-            out_bytes.append(chr(length_value))
-            out_bytes.append(in_bytes[search_start_idx:idx])
-        else:
-            out_bytes.append(final_byte)
-            out_bytes.append(in_bytes[search_start_idx:idx - 1])
+    try:
+        final_byte = in_bytes[-1]
+    except IndexError:
+        final_byte = '\x00'
+    length_value = idx - search_start_idx + 1
+    if ord(final_byte) < length_value:
+        out_bytes.append(chr(length_value))
+        out_bytes.append(in_bytes[search_start_idx:idx])
+    else:
+        out_bytes.append(final_byte)
+        out_bytes.append(in_bytes[search_start_idx:idx - 1])
     return ''.join(out_bytes)
 
 
