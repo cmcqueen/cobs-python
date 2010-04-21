@@ -37,9 +37,12 @@ def encode(in_bytes):
         final_byte = '\x00'
     length_value = idx - search_start_idx + 1
     if ord(final_byte) < length_value:
+        # Encoding same as plain COBS
         out_bytes.append(chr(length_value))
         out_bytes.append(in_bytes[search_start_idx:idx])
     else:
+        # Special COBS/R encoding: length code is final byte,
+        # and final byte is removed from data sequence.
         out_bytes.append(final_byte)
         out_bytes.append(in_bytes[search_start_idx:idx - 1])
     return ''.join(out_bytes)
