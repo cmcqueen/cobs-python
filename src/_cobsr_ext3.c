@@ -217,11 +217,14 @@ cobsr_encode(PyObject* module, PyObject* arg)
     {
         if (src_byte < search_len)
         {
+            /* Encoding same as plain COBS */
             *dst_code_write_ptr = (char) search_len;
             dst_code_write_ptr = dst_write_ptr;
         }
         else
         {
+            /* Special COBS/R encoding: length code is final byte,
+             * and final byte is removed from data sequence. */
             *dst_code_write_ptr = (char) src_byte;
             dst_code_write_ptr = dst_write_ptr - 1;
         }
