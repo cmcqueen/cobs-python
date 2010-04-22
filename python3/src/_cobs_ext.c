@@ -47,9 +47,6 @@
 #endif
 
 
-#define GETSTATE(M) ((struct module_state *) PyModule_GetState(M))
-
-
 /*
  * Given a PyObject* obj, fill in the Py_buffer* viewp with the result
  * of PyObject_GetBuffer.  Sets and exception and issues a return NULL
@@ -78,46 +75,22 @@
 
 
 /*****************************************************************************
- * Types
- ****************************************************************************/
-
-struct module_state
-{
-    /* cobs.DecodeError exception class. */
-    PyObject * CobsDecodeError;
-};
-
-
-/*****************************************************************************
  * Functions
  ****************************************************************************/
-
-static int cobs_traverse(PyObject *m, visitproc visit, void *arg)
-{
-    Py_VISIT(GETSTATE(m)->CobsDecodeError);
-    return 0;
-}
-
-
-static int cobs_clear(PyObject *m)
-{
-    Py_CLEAR(GETSTATE(m)->CobsDecodeError);
-    return 0;
-}
-
 
 /*
  * cobs.encode
  */
 PyDoc_STRVAR(cobs_encode__doc__,
-"Encode a string using Consistent Overhead Byte Stuffing (COBS).\n"
-"\n"
-"Input is any byte string. Output is also a byte string.\n"
-"\n"
-"Encoding guarantees no zero bytes in the output. The output\n"
-"string will be expanded slightly, by a predictable amount.\n"
-"\n"
-"An empty string is encoded to '\\x01'.");
+    "Encode a string using Consistent Overhead Byte Stuffing (COBS).\n"
+    "\n"
+    "Input is any byte string. Output is also a byte string.\n"
+    "\n"
+    "Encoding guarantees no zero bytes in the output. The output\n"
+    "string will be expanded slightly, by a predictable amount.\n"
+    "\n"
+    "An empty string is encoded to '\\x01'."
+);
 
 /*
  * This Python C extension function uses arguments method METH_O,
@@ -218,13 +191,14 @@ cobs_encode(PyObject* module, PyObject* arg)
  * cobs.decode
  */
 PyDoc_STRVAR(cobs_decode__doc__,
-"Decode a string using Consistent Overhead Byte Stuffing (COBS).\n"
-"\n"
-"Input should be a byte string that has been COBS encoded. Output\n"
-"is also a byte string.\n"
-"\n"
-"A cobs.DecodeError exception may be raised if the encoded data\n"
-"is invalid.");
+    "Decode a string using Consistent Overhead Byte Stuffing (COBS).\n"
+    "\n"
+    "Input should be a byte string that has been COBS encoded. Output\n"
+    "is also a byte string.\n"
+    "\n"
+    "A ValueError exception will be raised if the encoded data\n"
+    "is invalid."
+);
 
 /*
  * This Python C extension function uses arguments method METH_O,
@@ -280,7 +254,7 @@ cobs_decode(PyObject* module, PyObject* arg)
             {
                 PyBuffer_Release(&src_py_buffer);
                 Py_DECREF(dst_py_obj_ptr);
-                PyErr_SetString(GETSTATE(module)->CobsDecodeError, "zero byte found in input");
+                PyErr_SetString(PyExc_ValueError, "zero byte found in input");
                 return NULL;
             }
             len_code--;
@@ -290,7 +264,7 @@ cobs_decode(PyObject* module, PyObject* arg)
             {
                 PyBuffer_Release(&src_py_buffer);
                 Py_DECREF(dst_py_obj_ptr);
-                PyErr_SetString(GETSTATE(module)->CobsDecodeError, "not enough input bytes for length code");
+                PyErr_SetString(PyExc_ValueError, "not enough input bytes for length code");
                 return NULL;
             }
 
@@ -301,7 +275,7 @@ cobs_decode(PyObject* module, PyObject* arg)
                 {
                     PyBuffer_Release(&src_py_buffer);
                     Py_DECREF(dst_py_obj_ptr);
-                    PyErr_SetString(GETSTATE(module)->CobsDecodeError, "zero byte found in input");
+                    PyErr_SetString(PyExc_ValueError, "zero byte found in input");
                     return NULL;
                 }
                 *dst_write_ptr++ = src_byte;
@@ -335,7 +309,7 @@ cobs_decode(PyObject* module, PyObject* arg)
  ****************************************************************************/
 
 PyDoc_STRVAR(module__doc__,
-"Consistent Overhead Byte Stuffing (COBS)"
+    "Consistent Overhead Byte Stuffing (COBS)"
 );
 
 static PyMethodDef methodTable[] =
@@ -351,11 +325,12 @@ static struct PyModuleDef moduleDef =
     PyModuleDef_HEAD_INIT,
     "_cobs_ext",                    // name of module
     module__doc__,                  // module documentation
-    sizeof(struct module_state),    // size of per-interpreter state of the module,
+    -1,                             // size of per-interpreter state of the module,
+                                    // or -1 if the module keeps state in global variables.
     methodTable,
     NULL,
-    cobs_traverse,
-    cobs_clear,
+    NULL,
+    NULL,
     NULL
 };
 
@@ -367,27 +342,11 @@ static struct PyModuleDef moduleDef =
 PyMODINIT_FUNC
 PyInit__cobs_ext(void)
 {
-    PyObject *              module;
-    struct module_state *   st;
+    PyObject * module;
 
 
     /* Initialise cobs module C extension cobs._cobsext */
     module = PyModule_Create(&moduleDef);
-    if (module == NULL)
-    {
-        return NULL;
-    }
-
-    st = GETSTATE(module);
-
-    /* Initialise cobs.DecodeError exception class. */
-    st->CobsDecodeError = PyErr_NewException("cobs.DecodeError", NULL, NULL);
-    if (st->CobsDecodeError == NULL)
-    {
-        Py_DECREF(module);
-        return NULL;
-    }
-    PyModule_AddObject(module, "DecodeError", st->CobsDecodeError);
 
     return module;
 }

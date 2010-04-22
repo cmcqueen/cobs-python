@@ -1,12 +1,8 @@
 """
-Consistent Overhead Byte Stuffing (COBS)
+Consistent Overhead Byte Stuffing/Reduced (COBS/R)
 
 This version is for Python 3.x.
 """
-
-
-class DecodeError(Exception):
-    pass
 
 
 def _get_buffer_view(in_bytes):
@@ -16,12 +12,12 @@ def _get_buffer_view(in_bytes):
     return mv
 
 def encode(in_bytes):
-    """Encode a string using Consistent Overhead Byte Stuffing (COBS).
+    """Encode a string using Consistent Overhead Byte Stuffing/Reduced (COBS/R).
     
     Input is any byte string. Output is also a byte string.
     
     Encoding guarantees no zero bytes in the output. The output
-    string will be expanded slightly, by a predictable amount.
+    string may be expanded slightly, by a predictable amount.
     
     An empty string is encoded to '\\x01'"""
     if isinstance(in_bytes, str):
@@ -58,12 +54,12 @@ def encode(in_bytes):
 
 
 def decode(in_bytes):
-    """Decode a string using Consistent Overhead Byte Stuffing (COBS).
+    """Decode a string using Consistent Overhead Byte Stuffing/Reduced (COBS/R).
     
-    Input should be a byte string that has been COBS encoded. Output
+    Input should be a byte string that has been COBS/R encoded. Output
     is also a byte string.
     
-    A cobs.DecodeError exception may be raised if the encoded data
+    A ValueError exception will be raised if the encoded data
     is invalid."""
     if isinstance(in_bytes, str):
         raise TypeError('Unicode-objects are not supported; byte buffer objects only')
@@ -75,12 +71,12 @@ def decode(in_bytes):
         while True:
             length = ord(in_bytes_mv[idx])
             if length == 0:
-                raise DecodeError("zero byte found in input")
+                raise ValueError("zero byte found in input")
             idx += 1
             end = idx + length - 1
             copy_mv = in_bytes_mv[idx:end]
             if b'\x00' in copy_mv:
-                raise DecodeError("zero byte found in input")
+                raise ValueError("zero byte found in input")
             out_bytes += copy_mv
             idx = end
             if idx > len(in_bytes_mv):

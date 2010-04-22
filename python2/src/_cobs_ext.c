@@ -60,16 +60,6 @@ typedef int Py_ssize_t;
 
 
 /*****************************************************************************
- * Variables
- ****************************************************************************/
-
-/*
- * cobs.DecodeError exception class.
- */
-static PyObject *CobsDecodeError;
-
-
-/*****************************************************************************
  * Functions
  ****************************************************************************/
 
@@ -77,14 +67,15 @@ static PyObject *CobsDecodeError;
  * Encode
  */
 PyDoc_STRVAR(cobs_encode__doc__,
-"Encode a string using Consistent Overhead Byte Stuffing (COBS).\n"
-"\n"
-"Input is any byte string. Output is also a byte string.\n"
-"\n"
-"Encoding guarantees no zero bytes in the output. The output\n"
-"string will be expanded slightly, by a predictable amount.\n"
-"\n"
-"An empty string is encoded to '\\x01'.");
+    "Encode a string using Consistent Overhead Byte Stuffing (COBS).\n"
+    "\n"
+    "Input is any byte string. Output is also a byte string.\n"
+    "\n"
+    "Encoding guarantees no zero bytes in the output. The output\n"
+    "string will be expanded slightly, by a predictable amount.\n"
+    "\n"
+    "An empty string is encoded to '\\x01'."
+);
 
 static PyObject*
 cobs_encode(PyObject* self, PyObject* args)
@@ -170,13 +161,14 @@ cobs_encode(PyObject* self, PyObject* args)
  * Decode
  */
 PyDoc_STRVAR(cobs_decode__doc__,
-"Decode a string using Consistent Overhead Byte Stuffing (COBS).\n"
-"\n"
-"Input should be a byte string that has been COBS encoded. Output\n"
-"is also a byte string.\n"
-"\n"
-"A cobs.DecodeError exception may be raised if the encoded data\n"
-"is invalid.");
+    "Decode a string using Consistent Overhead Byte Stuffing (COBS).\n"
+    "\n"
+    "Input should be a byte string that has been COBS encoded. Output\n"
+    "is also a byte string.\n"
+    "\n"
+    "A ValueError exception will be raised if the encoded data\n"
+    "is invalid."
+);
 
 static PyObject*
 cobs_decode(PyObject* self, PyObject* args)
@@ -218,7 +210,7 @@ cobs_decode(PyObject* self, PyObject* args)
             if (len_code == 0)
             {
                 Py_DECREF(dst_py_obj_ptr);
-                PyErr_SetString(CobsDecodeError, "zero byte found in input");
+                PyErr_SetString(PyExc_ValueError, "zero byte found in input");
                 return NULL;
             }
             len_code--;
@@ -227,7 +219,7 @@ cobs_decode(PyObject* self, PyObject* args)
             if (len_code > remaining_bytes)
             {
                 Py_DECREF(dst_py_obj_ptr);
-                PyErr_SetString(CobsDecodeError, "not enough input bytes for length code");
+                PyErr_SetString(PyExc_ValueError, "not enough input bytes for length code");
                 return NULL;
             }
 
@@ -237,7 +229,7 @@ cobs_decode(PyObject* self, PyObject* args)
                 if (src_byte == 0)
                 {
                     Py_DECREF(dst_py_obj_ptr);
-                    PyErr_SetString(CobsDecodeError, "zero byte found in input");
+                    PyErr_SetString(PyExc_ValueError, "zero byte found in input");
                     return NULL;
                 }
                 *dst_write_ptr++ = src_byte;
@@ -268,7 +260,7 @@ cobs_decode(PyObject* self, PyObject* args)
  ****************************************************************************/
 
 PyDoc_STRVAR(module__doc__,
-"Consistent Overhead Byte Stuffing (COBS)"
+    "Consistent Overhead Byte Stuffing (COBS)"
 );
 
 static PyMethodDef methodTable[] =
@@ -292,10 +284,5 @@ init_cobs_ext(void)
     m = Py_InitModule3("_cobs_ext", methodTable, module__doc__);
     if (m == NULL)
         return;
-
-    /* Initialise cobs.DecodeError exception class. */
-    CobsDecodeError = PyErr_NewException("cobs.DecodeError", NULL, NULL);
-    Py_INCREF(CobsDecodeError);
-    PyModule_AddObject(m, "DecodeError", CobsDecodeError);
 }
 

@@ -64,16 +64,6 @@ typedef int Py_ssize_t;
 
 
 /*****************************************************************************
- * Variables
- ****************************************************************************/
-
-/*
- * cobsr.DecodeError exception class.
- */
-static PyObject *CobsrDecodeError;
-
-
-/*****************************************************************************
  * Functions
  ****************************************************************************/
 
@@ -81,15 +71,15 @@ static PyObject *CobsrDecodeError;
  * Encode
  */
 PyDoc_STRVAR(cobsr_encode__doc__,
-        "Encode a string using Consistent Overhead Byte Stuffing/Reduced (COBS/R).\n"
-        "\n"
-        "Input is any byte string. Output is also a byte string.\n"
-        "\n"
-        "Encoding guarantees no zero bytes in the output. The output\n"
-        "string will be expanded slightly, by a predictable amount.\n"
-        "\n"
-        "An empty string is encoded to '\\x01'."
-    );
+    "Encode a string using Consistent Overhead Byte Stuffing/Reduced (COBS/R).\n"
+    "\n"
+    "Input is any byte string. Output is also a byte string.\n"
+    "\n"
+    "Encoding guarantees no zero bytes in the output. The output\n"
+    "string may be expanded slightly, by a predictable amount.\n"
+    "\n"
+    "An empty string is encoded to '\\x01'."
+);
 
 static PyObject*
 cobsr_encode(PyObject* self, PyObject* args)
@@ -197,14 +187,14 @@ cobsr_encode(PyObject* self, PyObject* args)
  * Decode
  */
 PyDoc_STRVAR(cobsr_decode__doc__,
-        "Decode a string using Consistent Overhead Byte Stuffing/Reduced (COBS/R).\n"
-        "\n"
-        "Input should be a byte string that has been COBS/R encoded. Output\n"
-        "is also a byte string.\n"
-        "\n"
-        "A cobs.DecodeError exception will be raised if the encoded data\n"
-        "is invalid. That is, if the encoded data contains zeros."
-    );
+    "Decode a string using Consistent Overhead Byte Stuffing/Reduced (COBS/R).\n"
+    "\n"
+    "Input should be a byte string that has been COBS/R encoded. Output\n"
+    "is also a byte string.\n"
+    "\n"
+    "A ValueError exception will be raised if the encoded data\n"
+    "is invalid. That is, if the encoded data contains zeros."
+);
 
 static PyObject*
 cobsr_decode(PyObject* self, PyObject* args)
@@ -246,7 +236,7 @@ cobsr_decode(PyObject* self, PyObject* args)
             if (len_code == 0)
             {
                 Py_DECREF(dst_py_obj_ptr);
-                PyErr_SetString(CobsrDecodeError, "zero byte found in input");
+                PyErr_SetString(PyExc_ValueError, "zero byte found in input");
                 return NULL;
             }
 
@@ -258,7 +248,7 @@ cobsr_decode(PyObject* self, PyObject* args)
                 if (src_byte == 0)
                 {
                     Py_DECREF(dst_py_obj_ptr);
-                    PyErr_SetString(CobsrDecodeError, "zero byte found in input");
+                    PyErr_SetString(PyExc_ValueError, "zero byte found in input");
                     return NULL;
                 }
                 *dst_write_ptr++ = src_byte;
@@ -294,7 +284,7 @@ cobsr_decode(PyObject* self, PyObject* args)
  ****************************************************************************/
 
 PyDoc_STRVAR(module__doc__,
-"Consistent Overhead Byte Stuffing/Reduced (COBS/R)"
+    "Consistent Overhead Byte Stuffing/Reduced (COBS/R)"
 );
 
 static PyMethodDef methodTable[] =
@@ -318,10 +308,5 @@ init_cobsr_ext(void)
     m = Py_InitModule3("_cobsr_ext", methodTable, module__doc__);
     if (m == NULL)
         return;
-
-    /* Initialise cobsr.DecodeError exception class. */
-    CobsrDecodeError = PyErr_NewException("cobsr.DecodeError", NULL, NULL);
-    Py_INCREF(CobsrDecodeError);
-    PyModule_AddObject(m, "DecodeError", CobsrDecodeError);
 }
 

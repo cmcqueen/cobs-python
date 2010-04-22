@@ -10,5 +10,5 @@ The following sub-modules are provided:
 
 __all__ = [ 'cobs', 'cobsr', ]
 
-#import cobs
-#import cobsr
+#from . import cobs
+#from . import cobsr

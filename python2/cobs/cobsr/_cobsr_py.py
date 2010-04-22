@@ -5,17 +5,13 @@ This version is for Python 2.x.
 """
 
 
-class DecodeError(Exception):
-    pass
-
-
 def encode(in_bytes):
     """Encode a string using Consistent Overhead Byte Stuffing/Reduced (COBS/R).
     
     Input is any byte string. Output is also a byte string.
     
     Encoding guarantees no zero bytes in the output. The output
-    string will be expanded slightly, by a predictable amount.
+    string may be expanded slightly, by a predictable amount.
     
     An empty string is encoded to '\\x01'"""
     out_bytes = []
@@ -54,7 +50,7 @@ def decode(in_bytes):
     Input should be a byte string that has been COBS/R encoded. Output
     is also a byte string.
     
-    A cobs.DecodeError exception will be raised if the encoded data
+    A ValueError exception will be raised if the encoded data
     is invalid. That is, if the encoded data contains zeros."""
     out_bytes = []
     idx = 0
@@ -63,12 +59,12 @@ def decode(in_bytes):
         while True:
             length = ord(in_bytes[idx])
             if length == 0:
-                raise DecodeError("zero byte found in input")
+                raise ValueError("zero byte found in input")
             idx += 1
             end = idx + length - 1
             copy_bytes = in_bytes[idx:end]
             if '\x00' in copy_bytes:
-                raise DecodeError("zero byte found in input")
+                raise ValueError("zero byte found in input")
             out_bytes.append(copy_bytes)
             idx = end
             if idx > len(in_bytes):

@@ -51,9 +51,6 @@
 #endif
 
 
-#define GETSTATE(M) ((struct module_state *) PyModule_GetState(M))
-
-
 /*
  * Given a PyObject* obj, fill in the Py_buffer* viewp with the result
  * of PyObject_GetBuffer.  Sets and exception and issues a return NULL
@@ -82,47 +79,22 @@
 
 
 /*****************************************************************************
- * Types
- ****************************************************************************/
-
-struct module_state
-{
-    /* cobsr.DecodeError exception class. */
-    PyObject * CobsrDecodeError;
-};
-
-
-/*****************************************************************************
  * Functions
  ****************************************************************************/
-
-static int cobsr_traverse(PyObject *m, visitproc visit, void *arg)
-{
-    Py_VISIT(GETSTATE(m)->CobsrDecodeError);
-    return 0;
-}
-
-
-static int cobsr_clear(PyObject *m)
-{
-    Py_CLEAR(GETSTATE(m)->CobsrDecodeError);
-    return 0;
-}
-
 
 /*
  * cobsr.encode
  */
 PyDoc_STRVAR(cobsr_encode__doc__,
-        "Encode a string using Consistent Overhead Byte Stuffing/Reduced (COBS/R).\n"
-        "\n"
-        "Input is any byte string. Output is also a byte string.\n"
-        "\n"
-        "Encoding guarantees no zero bytes in the output. The output\n"
-        "string will be expanded slightly, by a predictable amount.\n"
-        "\n"
-        "An empty string is encoded to '\\x01'."
-    );
+    "Encode a string using Consistent Overhead Byte Stuffing/Reduced (COBS/R).\n"
+    "\n"
+    "Input is any byte string. Output is also a byte string.\n"
+    "\n"
+    "Encoding guarantees no zero bytes in the output. The output\n"
+    "string may be expanded slightly, by a predictable amount.\n"
+    "\n"
+    "An empty string is encoded to '\\x01'."
+);
 
 /*
  * This Python C extension function uses arguments method METH_O,
@@ -245,14 +217,14 @@ cobsr_encode(PyObject* module, PyObject* arg)
  * cobsr.decode
  */
 PyDoc_STRVAR(cobsr_decode__doc__,
-        "Decode a string using Consistent Overhead Byte Stuffing/Reduced (COBS/R).\n"
-        "\n"
-        "Input should be a byte string that has been COBS/R encoded. Output\n"
-        "is also a byte string.\n"
-        "\n"
-        "A cobs.DecodeError exception will be raised if the encoded data\n"
-        "is invalid. That is, if the encoded data contains zeros."
-    );
+    "Decode a string using Consistent Overhead Byte Stuffing/Reduced (COBS/R).\n"
+    "\n"
+    "Input should be a byte string that has been COBS/R encoded. Output\n"
+    "is also a byte string.\n"
+    "\n"
+    "A ValueError exception will be raised if the encoded data\n"
+    "is invalid. That is, if the encoded data contains zeros."
+);
 
 /*
  * This Python C extension function uses arguments method METH_O,
@@ -308,7 +280,7 @@ cobsr_decode(PyObject* module, PyObject* arg)
             {
                 PyBuffer_Release(&src_py_buffer);
                 Py_DECREF(dst_py_obj_ptr);
-                PyErr_SetString(GETSTATE(module)->CobsrDecodeError, "zero byte found in input");
+                PyErr_SetString(PyExc_ValueError, "zero byte found in input");
                 return NULL;
             }
 
@@ -321,7 +293,7 @@ cobsr_decode(PyObject* module, PyObject* arg)
                 {
                     PyBuffer_Release(&src_py_buffer);
                     Py_DECREF(dst_py_obj_ptr);
-                    PyErr_SetString(GETSTATE(module)->CobsrDecodeError, "zero byte found in input");
+                    PyErr_SetString(PyExc_ValueError, "zero byte found in input");
                     return NULL;
                 }
                 *dst_write_ptr++ = src_byte;
@@ -360,7 +332,7 @@ cobsr_decode(PyObject* module, PyObject* arg)
  ****************************************************************************/
 
 PyDoc_STRVAR(module__doc__,
-"Consistent Overhead Byte Stuffing/Reduced (COBS/R)"
+    "Consistent Overhead Byte Stuffing/Reduced (COBS/R)"
 );
 
 static PyMethodDef methodTable[] =
@@ -376,11 +348,12 @@ static struct PyModuleDef moduleDef =
     PyModuleDef_HEAD_INIT,
     "_cobsr_ext",                   // name of module
     module__doc__,                  // module documentation
-    sizeof(struct module_state),    // size of per-interpreter state of the module,
+    -1,                             // size of per-interpreter state of the module,
+                                    // or -1 if the module keeps state in global variables.
     methodTable,
     NULL,
-    cobsr_traverse,
-    cobsr_clear,
+    NULL,
+    NULL,
     NULL
 };
 
@@ -392,27 +365,11 @@ static struct PyModuleDef moduleDef =
 PyMODINIT_FUNC
 PyInit__cobsr_ext(void)
 {
-    PyObject *              module;
-    struct module_state *   st;
+    PyObject * module;
 
 
     /* Initialise cobsr module C extension cobsr._cobsr_ext */
     module = PyModule_Create(&moduleDef);
-    if (module == NULL)
-    {
-        return NULL;
-    }
-
-    st = GETSTATE(module);
-
-    /* Initialise cobsr.DecodeError exception class. */
-    st->CobsrDecodeError = PyErr_NewException("cobsr.DecodeError", NULL, NULL);
-    if (st->CobsrDecodeError == NULL)
-    {
-        Py_DECREF(module);
-        return NULL;
-    }
-    PyModule_AddObject(module, "DecodeError", st->CobsrDecodeError);
 
     return module;
 }
