@@ -152,7 +152,7 @@ cobsr_encode(PyObject* self, PyObject* args)
         }
     }
 
-    /* We've reached the end of the source data (or possibly run out of output buffer)
+    /* We've reached the end of the source data.
      * Finalise the remaining output. In particular, write the code (length) byte.
      *
      * For COBS/R, the final code (length) byte is special: if the final data byte is

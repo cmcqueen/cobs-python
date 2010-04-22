@@ -182,7 +182,7 @@ cobsr_encode(PyObject* module, PyObject* arg)
     /* We're done with the input buffer now, so we have to release the PyBuffer. */
     PyBuffer_Release(&src_py_buffer);
 
-    /* We've reached the end of the source data (or possibly run out of output buffer)
+    /* We've reached the end of the source data.
      * Finalise the remaining output. In particular, write the code (length) byte.
      *
      * For COBS/R, the final code (length) byte is special: if the final data byte is
