@@ -88,7 +88,6 @@ cobs_encode(PyObject* self, PyObject* args)
     char *          dst_write_ptr;
     char            src_byte;
     unsigned char   search_len;
-    char            final_zero;
     PyObject *      dst_py_obj_ptr;
 
 
@@ -110,45 +109,50 @@ cobs_encode(PyObject* self, PyObject* args)
     dst_code_write_ptr  = dst_buf_ptr;
     dst_write_ptr = dst_code_write_ptr + 1;
     search_len = 1;
-    final_zero = TRUE;
 
     /* Iterate over the source bytes */
-    while (src_ptr < src_end_ptr)
+    if (src_ptr < src_end_ptr)
     {
-        src_byte = *src_ptr++;
-        if (src_byte == 0)
+        for (;;)
         {
-            /* We found a zero byte */
-            *dst_code_write_ptr = (char) search_len;
-            dst_code_write_ptr = dst_write_ptr++;
-            search_len = 1;
-            final_zero = TRUE;
-        }
-        else
-        {
-            /* Copy the non-zero byte to the destination buffer */
-            *dst_write_ptr++ = src_byte;
-            search_len++;
-            if (search_len == 0xFF)
+            src_byte = *src_ptr++;
+            if (src_byte == 0)
             {
-                /* We have a long string of non-zero bytes */
+                /* We found a zero byte */
                 *dst_code_write_ptr = (char) search_len;
                 dst_code_write_ptr = dst_write_ptr++;
                 search_len = 1;
-                final_zero = FALSE;
+                if (src_ptr >= src_end_ptr)
+                {
+                    break;
+                }
+            }
+            else
+            {
+                /* Copy the non-zero byte to the destination buffer */
+                *dst_write_ptr++ = src_byte;
+                search_len++;
+                if (src_ptr >= src_end_ptr)
+                {
+                    break;
+                }
+                if (search_len == 0xFF)
+                {
+                    /* We have a long string of non-zero bytes */
+                    *dst_code_write_ptr = (char) search_len;
+                    dst_code_write_ptr = dst_write_ptr++;
+                    search_len = 1;
+                }
             }
         }
     }
 
-    /* We've reached the end of the source data (or possibly run out of output buffer)
+    /* We've reached the end of the source data.
      * Finalise the remaining output. In particular, write the code (length) byte.
      * Update the pointer to calculate the final output length.
      */
-    if ((search_len > 1) || (final_zero != FALSE))
-    {
-        *dst_code_write_ptr = (char) search_len;
-        dst_code_write_ptr = dst_write_ptr;
-    }
+    *dst_code_write_ptr = (char) search_len;
+    dst_code_write_ptr = dst_write_ptr;
 
     /* Calculate the output length, from the value of dst_code_write_ptr */
     _PyString_Resize(&dst_py_obj_ptr, dst_code_write_ptr - dst_buf_ptr);
