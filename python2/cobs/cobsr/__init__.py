@@ -10,8 +10,8 @@ the pure Python version will be used.
 """
 
 try:
-    from cobsr._cobsr_ext import *
+    from cobs.cobsr._cobsr_ext import *
     _using_extension = True
 except ImportError:
-    from cobsr._cobsr_py import *
+    from cobs.cobsr._cobsr_py import *
     _using_extension = False

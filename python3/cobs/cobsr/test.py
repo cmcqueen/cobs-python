@@ -10,8 +10,8 @@ from array import array
 import random
 import unittest
 
-import cobsr
-#import cobsr._cobsr_py as cobsr
+from .. import cobsr as cobsr
+#from ..cobsr import _cobsr_py as cobsr
 
 
 def infinite_non_zero_generator():

@@ -10,8 +10,8 @@ from array import array
 import random
 import unittest
 
-import cobs
-#import cobs._cobs_py as cobs
+from cobs import cobs
+#from cobs.cobs import _cobs_py as cobs
 
 
 def infinite_non_zero_generator():
