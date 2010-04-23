@@ -1,5 +1,3 @@
 include *.txt
-recursive-include src *
-recursive-include cobs2 *
-recursive-include cobs26 *
-recursive-include cobs3 *
+recursive-include python2 *
+recursive-include python3 *
