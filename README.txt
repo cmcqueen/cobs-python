@@ -76,7 +76,7 @@ Python 2.x)::
     >>> cobs.decode(encoded)
     'Hello world\x00This is a test'
 
-`COBS/R`_ usage is almost identical:
+`COBS/R`_ usage is almost identical::
 
     >>> from cobs import cobsr
     >>> encoded = cobsr.encode('Hello world\x00This is a test')
