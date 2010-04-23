@@ -1,6 +1,6 @@
 
 import unittest
 
-import cobs.test
+import cobs.cobs.test
 
-unittest.main(module=cobs.test)
+unittest.main(module=cobs.cobs.test)

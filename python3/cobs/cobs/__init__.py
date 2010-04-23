@@ -12,13 +12,13 @@ are provided. If the C extension is not available for some reason,
 the pure Python version will be used.
 
 References:
-    http://www.stuartcheshire.org/papers/COBSforSIGCOMM/
     http://www.stuartcheshire.org/papers/COBSforToN.pdf
+    http://tools.ietf.org/html/draft-ietf-pppext-cobs-00
 """
 
 try:
-    from cobs._cobs_ext import *
+    from ._cobs_ext import *
     _using_extension = True
 except ImportError:
-    from cobs._cobs_py import *
+    from ._cobs_py import *
     _using_extension = False

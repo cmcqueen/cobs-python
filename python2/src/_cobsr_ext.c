@@ -1,7 +1,7 @@
 /*
- * Consistent Overhead Byte Stuffing (COBS)
+ * Consistent Overhead Byte Stuffing/Reduced (COBS/R)
  *
- * Python C extension for COBS encoding and decoding functions.
+ * Python C extension for COBS/R encoding and decoding functions.
  *
  * Copyright (c) 2010 Craig McQueen
  *
@@ -54,19 +54,13 @@ typedef int Py_ssize_t;
 #define TRUE        (!FALSE)
 #endif
 
+#ifndef MIN
+#define MIN(X,Y)    ((X) < (Y) ? (X) : (Y))
+#endif
 
-#define COBS_ENCODE_DST_BUF_LEN_MAX(SRC_LEN)            ((SRC_LEN) + ((SRC_LEN)/254u) + 1)
-#define COBS_DECODE_DST_BUF_LEN_MAX(SRC_LEN)            (((SRC_LEN) <= 1) ? 1 : ((SRC_LEN) - 1))
 
-
-/*****************************************************************************
- * Variables
- ****************************************************************************/
-
-/*
- * cobs.DecodeError exception class.
- */
-static PyObject *CobsDecodeError;
+#define COBSR_ENCODE_DST_BUF_LEN_MAX(SRC_LEN)           ((SRC_LEN) + ((SRC_LEN)/254u) + 1)
+#define COBSR_DECODE_DST_BUF_LEN_MAX(SRC_LEN)           (((SRC_LEN) <= 1) ? 1 : (SRC_LEN))
 
 
 /*****************************************************************************
@@ -76,18 +70,19 @@ static PyObject *CobsDecodeError;
 /*
  * Encode
  */
-PyDoc_STRVAR(cobs_encode__doc__,
-"Encode a string using Consistent Overhead Byte Stuffing (COBS).\n"
-"\n"
-"Input is any byte string. Output is also a byte string.\n"
-"\n"
-"Encoding guarantees no zero bytes in the output. The output\n"
-"string will be expanded slightly, by a predictable amount.\n"
-"\n"
-"An empty string is encoded to '\\x01'.");
+PyDoc_STRVAR(cobsr_encode__doc__,
+    "Encode a string using Consistent Overhead Byte Stuffing/Reduced (COBS/R).\n"
+    "\n"
+    "Input is any byte string. Output is also a byte string.\n"
+    "\n"
+    "Encoding guarantees no zero bytes in the output. The output\n"
+    "string may be expanded slightly, by a predictable amount.\n"
+    "\n"
+    "An empty string is encoded to '\\x01'."
+);
 
 static PyObject*
-cobs_encode(PyObject* self, PyObject* args)
+cobsr_encode(PyObject* self, PyObject* args)
 {
     const char *    src_ptr;
     Py_ssize_t      src_len;
@@ -95,9 +90,8 @@ cobs_encode(PyObject* self, PyObject* args)
     char *          dst_buf_ptr;
     char *          dst_code_write_ptr;
     char *          dst_write_ptr;
-    char            src_byte;
+    unsigned char   src_byte;
     unsigned char   search_len;
-    char            final_zero;
     PyObject *      dst_py_obj_ptr;
 
 
@@ -108,7 +102,7 @@ cobs_encode(PyObject* self, PyObject* args)
     src_end_ptr = src_ptr + src_len;
 
     /* Make an output string */
-    dst_py_obj_ptr = PyString_FromStringAndSize(NULL, COBS_ENCODE_DST_BUF_LEN_MAX(src_len));
+    dst_py_obj_ptr = PyString_FromStringAndSize(NULL, COBSR_ENCODE_DST_BUF_LEN_MAX(src_len));
     if (dst_py_obj_ptr == NULL)
     {
         return NULL;
@@ -119,44 +113,67 @@ cobs_encode(PyObject* self, PyObject* args)
     dst_code_write_ptr  = dst_buf_ptr;
     dst_write_ptr = dst_code_write_ptr + 1;
     search_len = 1;
-    final_zero = TRUE;
+    src_byte = 0;
 
     /* Iterate over the source bytes */
-    while (src_ptr < src_end_ptr)
+    if (src_ptr < src_end_ptr)
     {
-        src_byte = *src_ptr++;
-        if (src_byte == 0)
+        for (;;)
         {
-            /* We found a zero byte */
-            *dst_code_write_ptr = (char) search_len;
-            dst_code_write_ptr = dst_write_ptr++;
-            search_len = 1;
-            final_zero = TRUE;
-        }
-        else
-        {
-            /* Copy the non-zero byte to the destination buffer */
-            *dst_write_ptr++ = src_byte;
-            search_len++;
-            if (search_len == 0xFF)
+            src_byte = *src_ptr++;
+            if (src_byte == 0)
             {
-                /* We have a long string of non-zero bytes */
+                /* We found a zero byte */
                 *dst_code_write_ptr = (char) search_len;
                 dst_code_write_ptr = dst_write_ptr++;
                 search_len = 1;
-                final_zero = FALSE;
+                if (src_ptr >= src_end_ptr)
+                {
+                    break;
+                }
+            }
+            else
+            {
+                /* Copy the non-zero byte to the destination buffer */
+                *dst_write_ptr++ = src_byte;
+                search_len++;
+                if (src_ptr >= src_end_ptr)
+                {
+                    break;
+                }
+                if (search_len == 0xFF)
+                {
+                    /* We have a long string of non-zero bytes */
+                    *dst_code_write_ptr = (char) search_len;
+                    dst_code_write_ptr = dst_write_ptr++;
+                    search_len = 1;
+                }
             }
         }
     }
 
-    /* We've reached the end of the source data (or possibly run out of output buffer)
+    /* We've reached the end of the source data.
      * Finalise the remaining output. In particular, write the code (length) byte.
+     *
+     * For COBS/R, the final code (length) byte is special: if the final data byte is
+     * greater than or equal to what would normally be the final code (length) byte,
+     * then replace the final code byte with the final data byte, and remove the final
+     * data byte from the end of the sequence. This saves one byte in the output.
+     *
      * Update the pointer to calculate the final output length.
      */
-    if ((search_len > 1) || (final_zero != FALSE))
+    if (src_byte < search_len)
     {
+        /* Encoding same as plain COBS */
         *dst_code_write_ptr = (char) search_len;
         dst_code_write_ptr = dst_write_ptr;
+    }
+    else
+    {
+        /* Special COBS/R encoding: length code is final byte,
+         * and final byte is removed from data sequence. */
+        *dst_code_write_ptr = (char) src_byte;
+        dst_code_write_ptr = dst_write_ptr - 1;
     }
 
     /* Calculate the output length, from the value of dst_code_write_ptr */
@@ -169,17 +186,18 @@ cobs_encode(PyObject* self, PyObject* args)
 /*
  * Decode
  */
-PyDoc_STRVAR(cobs_decode__doc__,
-"Decode a string using Consistent Overhead Byte Stuffing (COBS).\n"
-"\n"
-"Input should be a byte string that has been COBS encoded. Output\n"
-"is also a byte string.\n"
-"\n"
-"A cobs.DecodeError exception may be raised if the encoded data\n"
-"is invalid.");
+PyDoc_STRVAR(cobsr_decode__doc__,
+    "Decode a string using Consistent Overhead Byte Stuffing/Reduced (COBS/R).\n"
+    "\n"
+    "Input should be a byte string that has been COBS/R encoded. Output\n"
+    "is also a byte string.\n"
+    "\n"
+    "A ValueError exception will be raised if the encoded data\n"
+    "is invalid. That is, if the encoded data contains zeros."
+);
 
 static PyObject*
-cobs_decode(PyObject* self, PyObject* args)
+cobsr_decode(PyObject* self, PyObject* args)
 {
     const char *            src_ptr;
     Py_ssize_t              src_len;
@@ -200,7 +218,7 @@ cobs_decode(PyObject* self, PyObject* args)
     src_end_ptr = src_ptr + src_len;
 
     /* Make an output string */
-    dst_py_obj_ptr = PyString_FromStringAndSize(NULL, COBS_DECODE_DST_BUF_LEN_MAX(src_len));
+    dst_py_obj_ptr = PyString_FromStringAndSize(NULL, COBSR_DECODE_DST_BUF_LEN_MAX(src_len));
     if (dst_py_obj_ptr == NULL)
     {
         return NULL;
@@ -218,29 +236,27 @@ cobs_decode(PyObject* self, PyObject* args)
             if (len_code == 0)
             {
                 Py_DECREF(dst_py_obj_ptr);
-                PyErr_SetString(CobsDecodeError, "zero byte found in input");
+                PyErr_SetString(PyExc_ValueError, "zero byte found in input");
                 return NULL;
             }
-            len_code--;
 
             remaining_bytes = src_end_ptr - src_ptr;
-            if (len_code > remaining_bytes)
-            {
-                Py_DECREF(dst_py_obj_ptr);
-                PyErr_SetString(CobsDecodeError, "not enough input bytes for length code");
-                return NULL;
-            }
 
-            for (i = len_code; i != 0; i--)
+            for (i = MIN(len_code - 1, remaining_bytes); i != 0; i--)
             {
                 src_byte = *src_ptr++;
                 if (src_byte == 0)
                 {
                     Py_DECREF(dst_py_obj_ptr);
-                    PyErr_SetString(CobsDecodeError, "zero byte found in input");
+                    PyErr_SetString(PyExc_ValueError, "zero byte found in input");
                     return NULL;
                 }
                 *dst_write_ptr++ = src_byte;
+            }
+
+            if (len_code - 1 > remaining_bytes)
+            {
+                *dst_write_ptr++ = len_code;
             }
 
             if (src_ptr >= src_end_ptr)
@@ -249,7 +265,7 @@ cobs_decode(PyObject* self, PyObject* args)
             }
 
             /* Add a zero to the end */
-            if (len_code != 0xFE)
+            if (len_code != 0xFF)
             {
                 *dst_write_ptr++ = 0;
             }
@@ -268,13 +284,13 @@ cobs_decode(PyObject* self, PyObject* args)
  ****************************************************************************/
 
 PyDoc_STRVAR(module__doc__,
-"Consistent Overhead Byte Stuffing (COBS)"
+    "Consistent Overhead Byte Stuffing/Reduced (COBS/R)"
 );
 
 static PyMethodDef methodTable[] =
 {
-    { "encode", cobs_encode, METH_VARARGS, cobs_encode__doc__ },
-    { "decode", cobs_decode, METH_VARARGS, cobs_decode__doc__ },
+    { "encode", cobsr_encode, METH_VARARGS, cobsr_encode__doc__ },
+    { "decode", cobsr_decode, METH_VARARGS, cobsr_decode__doc__ },
     { NULL, NULL, 0, NULL }
 };
 
@@ -284,18 +300,13 @@ static PyMethodDef methodTable[] =
  ****************************************************************************/
 
 PyMODINIT_FUNC
-init_cobs_ext(void)
+init_cobsr_ext(void)
 {
     PyObject *m;
 
-    /* Initialise cobs module C extension cobs._cobsext */
-    m = Py_InitModule3("_cobs_ext", methodTable, module__doc__);
+    /* Initialise cobsr module C extension cobsr._cobsr_ext */
+    m = Py_InitModule3("_cobsr_ext", methodTable, module__doc__);
     if (m == NULL)
         return;
-
-    /* Initialise cobs.DecodeError exception class. */
-    CobsDecodeError = PyErr_NewException("cobs.DecodeError", NULL, NULL);
-    Py_INCREF(CobsDecodeError);
-    PyModule_AddObject(m, "DecodeError", CobsDecodeError);
 }
 

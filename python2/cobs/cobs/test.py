@@ -10,8 +10,8 @@ from array import array
 import random
 import unittest
 
-import cobs
-#import cobs._cobs_py as cobs
+from cobs import cobs
+#from cobs.cobs import _cobs_py as cobs
 
 
 def infinite_non_zero_generator():
@@ -67,7 +67,7 @@ class PredefinedDecodeErrorTests(unittest.TestCase):
 
     def test_predefined_decode_error(self):
         for test_encoded in self.decode_error_test_strings:
-            self.assertRaises(cobs.DecodeError, cobs.decode, test_encoded)
+            self.assertRaises(ValueError, cobs.decode, test_encoded)
 
 
 class ZerosTest(unittest.TestCase):

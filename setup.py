@@ -5,31 +5,24 @@ from distutils.core import setup
 from distutils.extension import Extension
 
 if sys.version_info[0] == 2:
-    cobs_extension_filename = 'src/_cobs_ext2.c'
+    base_dir = 'python2'
 elif sys.version_info[0] == 3:
-    cobs_extension_filename = 'src/_cobs_ext3.c'
-
-if sys.version_info[0] == 2:
-    if sys.version_info[1] >= 6:
-        cobs_package_dir = 'cobs26'
-    else:
-        cobs_package_dir = 'cobs2'
-elif sys.version_info[0] == 3:
-    cobs_package_dir = 'cobs3'
+    base_dir = 'python3'
 
 setup(
     name='cobs',
-    version='0.7.9',
+    version='0.8.0',
     description='Consistent Overhead Byte Stuffing (COBS)',
     author='Craig McQueen',
     author_email='python@craig.mcqueen.id.au',
     url='http://bitbucket.org/cmcqueen1975/cobs-python/',
-    packages=['cobs'],
+    packages=[ 'cobs', 'cobs.cobs', 'cobs.cobsr', ],
     package_dir={
-        'cobs' : cobs_package_dir 
+        'cobs' : base_dir + '/cobs',
     },
     ext_modules=[
-        Extension('cobs._cobs_ext', [cobs_extension_filename, ]),
+        Extension('cobs.cobs._cobs_ext', [ base_dir + '/src/_cobs_ext.c', ]),
+        Extension('cobs.cobsr._cobsr_ext', [ base_dir + '/src/_cobsr_ext.c', ]),
     ],
 
     long_description=open('README.txt').read(),
