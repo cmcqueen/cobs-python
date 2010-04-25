@@ -104,7 +104,7 @@ any             :math:`=0`      :math:`≠0`      :math:`≠0`      |fp2|       
 ..  |fp4|   replace::   :math:`P(x_0≠0) \times P(x_1≠0) \times P(x_2≠0) \times P(x_3≠0)`
 
 Multiply the last two columns, and sum for all rows. For a message of length :math:`n` where
-:math:`1 /le n /le 254`, the general equation for the probability of the +1 byte is: 
+:math:`1 \le n \le 254`, the general equation for the probability of the +1 byte is: 
 
 ..  math::  P(x_{n-1} \le n|x_{n-1}≠0) \prod_{k=0}^{n-1} P(x_k≠0) + \sum_{i=0}^{n-2} \left[ P(x_{n-1} \le (n-1-i)|x_{n-1}≠0) P(x_i=0) \prod_{k=i+1}^{n-1} P(x_k≠0) \right] + P(x_{n-1}=0)
 
@@ -116,6 +116,8 @@ probabilities that are evenly distributed. In this case:
 ..  math::  P(x_i≠0) = \frac{255}{256}
 
 ..  math::  P(x_i=0) = \frac{1}{256}
+
+Simplified example for :math:`n=4`:
 
 ==============  ==============  ==============  ==============  ======================  ==========================
 :math:`x_0`     :math:`x_1`     :math:`x_2`     :math:`x_3`     Probability of Pattern  Probability of +1 byte
@@ -133,7 +135,11 @@ any             :math:`=0`      :math:`≠0`      :math:`≠0`      |f2p2|      
 ..  |f2p3|  replace::   :math:`\frac{1}{256}\left(\frac{255}{256}\right)^3`
 ..  |f2p4|  replace::   :math:`\left(\frac{255}{256}\right)^4`
 
-The equation is:
+The simplified equation for a message of length :math:`n` where
+:math:`1 \le n \le 254` is:
 
-..  math::  \frac{n}{255} \left(\frac{255}{256}\right)^n + \sum_{i=1}^{n-1} \left[ \frac{i}{255} \frac{1}{256} \left(\frac{255}{256}\right)^i \right] + \frac{1}{256}
+..  math::  \frac{n}{255} \left(\frac{255}{256}\right)^n + \frac{1}{255 \times 256} \sum_{i=1}^{n-1} \left[ i \left(\frac{255}{256}\right)^i \right] + \frac{1}{256}
 
+Which simplifies to:
+
+..  math::  \frac{257}{256}-\left(\frac{255}{256}\right)^n
