@@ -16,28 +16,37 @@ Intro
 The ``cobs`` package is provided, which contains modules containing functions
 for encoding and decoding according to COBS methods.
 
-==================  ==================  ===============================================================
-Module              Short Name          Long Name
-==================  ==================  ===============================================================
-``cobs.cobs``       COBS                Consistent Overhead Byte Stuffing (basic method) [#ieeeton]_
-``cobs.cobsr``      COBS/R              `Consistent Overhead Byte Stuffing/Reduced`_
-==================  ==================  ===============================================================
 
-"`Consistent Overhead Byte Stuffing/Reduced`_" (COBS/R) is my own invention,
-a modification of basic COBS encoding, and is described in more detail below.
+What Is COBS?
+`````````````
 
-The following are not implemented:
+COBS is a method of encoding a packet of bytes into a form that contains no
+bytes with value zero (0x00). The input packet of bytes can contain bytes
+in the full range of 0x00 to 0xFF. The COBS encoded packet is guaranteed to
+generate packets with bytes only in the range 0x01 to 0xFF. Thus, in a
+communication protocol, packet boundaries can be reliably delimited with 0x00
+bytes.
 
-==================  ======================================================================
-Short Name          Long Name
-==================  ======================================================================
-COBS/ZPE            Consistent Overhead Byte Stuffing--Zero Pair Elimination [#ieeeton]_
-COBS/ZRE            Consistent Overhead Byte Stuffing--Zero Run Elimination [#ppp]_
-==================  ======================================================================
+The COBS encoding does have to increase the packet size to achieve this
+encoding. However, compared to other byte-stuffing methods, the packet size
+increase is reasonable and predictable. COBS always adds 1 byte to the
+message length. Additionally, for longer packets of length *n*, it *may* add
+n/254 (rounded down) additional bytes to the encoded packet size.
 
-A pure Python implementation and a C extension implementation are provided. If
-the C extension is not available for some reason, the pure Python version will
-be used.
+For example, compare to the PPP protocol, which uses 0x7E bytes to delimit
+PPP packets. The PPP protocol uses an "escape" style of byte stuffing,
+replacing all occurences of 0x7E bytes in the packet with 0x7D 0x5E. But that
+byte-stuffing method can potentially double the size of the packet in the
+worst case. COBS uses a different method for byte-stuffing, which has a much
+more reasonable worst-case overhead.
+
+For more details about COBS, see the references [#ieeeton]_ [#ppp]_.
+
+I have included a variant on COBS, `COBS/R`_, which slightly modifies COBS to
+often avoid the +1 byte overhead of COBS. So in many cases, especially for
+smaller packets, the size of a COBS/R encoded packet is the same size as the
+original packet. See below for more details about `COBS/R`_.
+
 
 References
 ``````````
@@ -58,6 +67,34 @@ References
 
 .. _PPP Consistent Overhead Byte Stuffing (COBS):
     http://tools.ietf.org/html/draft-ietf-pppext-cobs-00
+
+
+----------------
+Modules Provided
+----------------
+
+==================  ==================  ===============================================================
+Module              Short Name          Long Name
+==================  ==================  ===============================================================
+``cobs.cobs``       COBS                Consistent Overhead Byte Stuffing (basic method) [#ieeeton]_
+``cobs.cobsr``      `COBS/R`_           `Consistent Overhead Byte Stuffing--Reduced`_
+==================  ==================  ===============================================================
+
+"`Consistent Overhead Byte Stuffing--Reduced`_" (`COBS/R`_) is my own invention,
+a modification of basic COBS encoding, and is described in more detail below.
+
+The following are not implemented:
+
+==================  ======================================================================
+Short Name          Long Name
+==================  ======================================================================
+COBS/ZPE            Consistent Overhead Byte Stuffing--Zero Pair Elimination [#ieeeton]_
+COBS/ZRE            Consistent Overhead Byte Stuffing--Zero Run Elimination [#ppp]_
+==================  ======================================================================
+
+A pure Python implementation and a C extension implementation are provided. If
+the C extension is not available for some reason, the pure Python version will
+be used.
 
 
 -----
@@ -86,8 +123,15 @@ Python 2.x)::
     'Hello world\x00This is a test'
 
 For Python 3.x, input cannot be Unicode strings. Byte strings are acceptable
-input. Any input that implements the buffer protocol, providing a single
-block of bytes, is also acceptable as input.
+input. Any type that implements the buffer protocol, providing a single
+block of bytes, is also acceptable as input::
+
+    >>> from cobs import cobs
+    >>> encoded = cobs.encode(bytearray(b'Hello world\x00This is a test'))
+    >>> encoded
+    b'\x0cHello world\x0fThis is a test'
+    >>> cobs.decode(encoded)
+    b'Hello world\x00This is a test'
 
 
 -------------------------
@@ -118,10 +162,12 @@ Unit Testing
 Basic unit testing is in the ``test`` sub-module, e.g. ``cobs.cobs.test``. To run it on Python >=2.5::
 
     python -m cobs.cobs.test
+    python -m cobs.cobsr.test
 
 Alternatively, in the ``test`` directory run::
 
     python test_cobs.py
+    python test_cobsr.py
 
 
 -------
@@ -132,18 +178,18 @@ The code is released under the MIT license. See LICENSE.txt for details.
 
 
 ..  _COBS/R:
-..  _Consistent Overhead Byte Stuffing/Reduced:
+..  _Consistent Overhead Byte Stuffing--Reduced:
 
---------------------------------------------------
-Consistent Overhead Byte Stuffing/Reduced (COBS/R)
---------------------------------------------------
+---------------------------------------------------
+Consistent Overhead Byte Stuffing--Reduced (COBS/R)
+---------------------------------------------------
 
 A modification of COBS, which I'm calling "Consistent Overhead Byte
-Stuffing/Reduced" (COBS/R), is provided in the ``cobs.cobsr`` module. Its
+Stuffing--Reduced" (COBS/R), is provided in the ``cobs.cobsr`` module. Its
 purpose is to save one byte from the encoded form in some cases. Plain COBS
-encoding always has a +1 byte encoding overhead. COBS/R can often avoid the +1
-byte, which can be a useful savings if it is mostly small messages that are
-being encoded.
+encoding always has a +1 byte encoding overhead. See the references for
+details [#ieeeton]_. COBS/R can often avoid the +1 byte, which can be a useful
+savings if it is mostly small messages that are being encoded.
 
 In plain COBS, the last length code byte in the message has some inherent
 redundancy: if it is greater than the number of remaining bytes, this is
