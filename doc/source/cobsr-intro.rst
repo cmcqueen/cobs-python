@@ -85,6 +85,10 @@ Encoding Sizes Using COBS/R
 Given an input data packet of size *n*, COBS/R encoding may or may not add a
 +1 byte overhead, depending on the contents of the input data.
 
+
+General Case
+````````````
+
 Example for :math:`n=4`:
 
 ==============  ==============  ==============  ==============  ======================  ======================
@@ -107,6 +111,10 @@ Multiply the last two columns, and sum for all rows. For a message of length :ma
 :math:`1 \le n \le 254`, the general equation for the probability of the +1 byte is: 
 
 ..  math::  P(x_{n-1} \le n|x_{n-1}≠0) \prod_{k=0}^{n-1} P(x_k≠0) + \sum_{i=0}^{n-2} \left[ P(x_{n-1} \le (n-1-i)|x_{n-1}≠0) P(x_i=0) \prod_{k=i+1}^{n-1} P(x_k≠0) \right] + P(x_{n-1}=0)
+
+
+Even Byte Distribution Case
+```````````````````````````
 
 We can simplify this for the simpler case of messages with byte value
 probabilities that are evenly distributed. In this case:
@@ -143,3 +151,30 @@ The simplified equation for a message of length :math:`n` where
 Which simplifies to:
 
 ..  math::  \frac{257}{256}-\left(\frac{255}{256}\right)^n
+
+
+Further Observations for General Case
+`````````````````````````````````````
+
+Going back to the general case, we can make several observations about what
+sort of byte distributions more favourably avoid the +1 byte in the COBS/R
+encoding.
+
+    *   Since a zero in the final byte definitely adds a +1 overhead, a low
+        probability of a zero for the final byte is favourable.
+    *   A higher probability of a zero byte value is favourable for all bytes
+        except the last one.
+    *   For byte values other than zero, a byte distribution with a higher
+        probability of high-value bytes is favourable.
+
+If the byte distribution of a communication protocol is known in advance,
+it may be possible and worthwhile to pre-process the data bytes before
+COBS/R encoding, to reduce the average size of the COBS/R encoded data.
+For example, possible byte manipulations may be:
+
+    *   Negate every byte. This swaps the distribution of high- and low-
+        value bytes, without affecting the zero byte itself.
+    *   XOR every byte with a fixed value.
+
+Of course after decoding, the data would have to be post-processed to reverse
+the effects of the encoding pre-processing step.
