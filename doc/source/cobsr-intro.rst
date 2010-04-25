@@ -91,17 +91,17 @@ Example for :math:`n=3`:
 :math:`x_0`     :math:`x_1`     :math:`x_2`     :math:`x_3`     Probability of Pattern  Probability of +1 byte
 ==============  ==============  ==============  ==============  ======================  ======================
 any             any             any             :math:`=0`      |fp0|                   :math:`1`
-any             any             :math:`=0`      :math:`≠0`      |fp1|                   :math:`P_{x_3 < 2}`
-any             :math:`=0`      :math:`≠0`      :math:`≠0`      |fp2|                   :math:`P_{x_3 < 3}`
-:math:`=0`      :math:`≠0`      :math:`≠0`      :math:`≠0`      |fp3|                   :math:`P_{x_3 < 4}`
-:math:`≠0`      :math:`≠0`      :math:`≠0`      :math:`≠0`      |fp4|                   :math:`P_{x_3 < 5}`
+any             any             :math:`=0`      :math:`≠0`      |fp1|                   :math:`P(x_3 < 2|x_3≠0)`
+any             :math:`=0`      :math:`≠0`      :math:`≠0`      |fp2|                   :math:`P(x_3 < 3|x_3≠0)`
+:math:`=0`      :math:`≠0`      :math:`≠0`      :math:`≠0`      |fp3|                   :math:`P(x_3 < 4|x_3≠0)`
+:math:`≠0`      :math:`≠0`      :math:`≠0`      :math:`≠0`      |fp4|                   :math:`P(x_3 < 5|x_3≠0)`
 ==============  ==============  ==============  ==============  ======================  ======================
 
-..  |fp0|   replace::   :math:`P_{x_3=0}`
-..  |fp1|   replace::   :math:`P_{x_2=0} \times P_{x_3≠0}`
-..  |fp2|   replace::   :math:`P_{x_1=0} \times P_{x_2≠0} \times P_{x_3≠0}`
-..  |fp3|   replace::   :math:`P_{x_0=0} \times P_{x_1≠0} \times P_{x_2≠0} \times P_{x_3≠0}`
-..  |fp4|   replace::   :math:`P_{x_0≠0} \times P_{x_1≠0} \times P_{x_2≠0} \times P_{x_3≠0}`
+..  |fp0|   replace::   :math:`P(x_3=0)`
+..  |fp1|   replace::   :math:`P(x_2=0) \times P(x_3≠0)`
+..  |fp2|   replace::   :math:`P(x_1=0) \times P(x_2≠0) \times P(x_3≠0)`
+..  |fp3|   replace::   :math:`P(x_0=0) \times P(x_1≠0) \times P(x_2≠0) \times P(x_3≠0)`
+..  |fp4|   replace::   :math:`P(x_0≠0) \times P(x_1≠0) \times P(x_2≠0) \times P(x_3≠0)`
 
 For byte probabilities that are evenly distributed, this simplifies to:
 
