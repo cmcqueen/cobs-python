@@ -85,16 +85,16 @@ Encoding Sizes Using COBS/R
 Given an input data packet of size *n*, COBS/R encoding may or may not add a
 +1 byte overhead, depending on the contents of the input data.
 
-Example for :math:`n=3`:
+Example for :math:`n=4`:
 
 ==============  ==============  ==============  ==============  ======================  ======================
 :math:`x_0`     :math:`x_1`     :math:`x_2`     :math:`x_3`     Probability of Pattern  Probability of +1 byte
 ==============  ==============  ==============  ==============  ======================  ======================
 any             any             any             :math:`=0`      |fp0|                   :math:`1`
-any             any             :math:`=0`      :math:`≠0`      |fp1|                   :math:`P(x_3 < 2|x_3≠0)`
-any             :math:`=0`      :math:`≠0`      :math:`≠0`      |fp2|                   :math:`P(x_3 < 3|x_3≠0)`
-:math:`=0`      :math:`≠0`      :math:`≠0`      :math:`≠0`      |fp3|                   :math:`P(x_3 < 4|x_3≠0)`
-:math:`≠0`      :math:`≠0`      :math:`≠0`      :math:`≠0`      |fp4|                   :math:`P(x_3 < 5|x_3≠0)`
+any             any             :math:`=0`      :math:`≠0`      |fp1|                   :math:`P(x_3 \le 1|x_3≠0)`
+any             :math:`=0`      :math:`≠0`      :math:`≠0`      |fp2|                   :math:`P(x_3 \le 2|x_3≠0)`
+:math:`=0`      :math:`≠0`      :math:`≠0`      :math:`≠0`      |fp3|                   :math:`P(x_3 \le 3|x_3≠0)`
+:math:`≠0`      :math:`≠0`      :math:`≠0`      :math:`≠0`      |fp4|                   :math:`P(x_3 \le 4|x_3≠0)`
 ==============  ==============  ==============  ==============  ======================  ======================
 
 ..  |fp0|   replace::   :math:`P(x_3=0)`
@@ -103,7 +103,19 @@ any             :math:`=0`      :math:`≠0`      :math:`≠0`      |fp2|       
 ..  |fp3|   replace::   :math:`P(x_0=0) \times P(x_1≠0) \times P(x_2≠0) \times P(x_3≠0)`
 ..  |fp4|   replace::   :math:`P(x_0≠0) \times P(x_1≠0) \times P(x_2≠0) \times P(x_3≠0)`
 
-For byte probabilities that are evenly distributed, this simplifies to:
+Multiply the last two columns, and sum for all rows. For a message of length :math:`n` where
+:math:`1 /le n /le 254`, the general equation for the probability of the +1 byte is: 
+
+..  math::  P(x_{n-1} \le n|x_{n-1}≠0) \prod_{k=0}^{n-1} P(x_k≠0) + \sum_{i=0}^{n-2} \left[ P(x_{n-1} \le (n-1-i)|x_{n-1}≠0) P(x_i=0) \prod_{k=i+1}^{n-1} P(x_k≠0) \right] + P(x_{n-1}=0)
+
+We can simplify this for the simpler case of messages with byte value
+probabilities that are evenly distributed. In this case:
+
+..  math::  P(x_{n-1} \le n|x_{n-1}≠0) = \frac{n}{255}
+
+..  math::  P(x_i≠0) = \frac{255}{256}
+
+..  math::  P(x_i=0) = \frac{1}{256}
 
 ==============  ==============  ==============  ==============  ======================  ==========================
 :math:`x_0`     :math:`x_1`     :math:`x_2`     :math:`x_3`     Probability of Pattern  Probability of +1 byte
@@ -120,3 +132,8 @@ any             :math:`=0`      :math:`≠0`      :math:`≠0`      |f2p2|      
 ..  |f2p2|  replace::   :math:`\frac{1}{256}\left(\frac{255}{256}\right)^2`
 ..  |f2p3|  replace::   :math:`\frac{1}{256}\left(\frac{255}{256}\right)^3`
 ..  |f2p4|  replace::   :math:`\left(\frac{255}{256}\right)^4`
+
+The equation is:
+
+..  math::  \frac{n}{255} \left(\frac{255}{256}\right)^n + \sum_{i=1}^{n-1} \left[ \frac{i}{255} \frac{1}{256} \left(\frac{255}{256}\right)^i \right] + \frac{1}{256}
+
