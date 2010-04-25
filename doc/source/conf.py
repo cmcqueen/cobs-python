@@ -23,7 +23,7 @@ import sys, os
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = ['sphinx.ext.jsmath']
-jsmath_path = 'jsMath/easy/load.js'
+jsmath_path = '/home/craig-nat/software/jsMath/easy/load.js'
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

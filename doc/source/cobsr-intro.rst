@@ -23,8 +23,9 @@ than or equal to what the final length value would normally be. This variation
 can be unambiguously decoded: the decoder notices that the length code is
 greater than the number of remaining bytes.
 
+--------
 Examples
-````````
+--------
 
 The byte values in the examples are in hex.
 
@@ -76,3 +77,46 @@ length code is greater than the number of remaining bytes. That situation would
 be a decoding error in regular COBS, but in COBS/R it is used to save one byte
 in the encoded message.
 
+
+---------------------------
+Encoding Sizes Using COBS/R
+---------------------------
+
+Given an input data packet of size *n*, COBS/R encoding may or may not add a
++1 byte overhead, depending on the contents of the input data.
+
+Example for :math:`n=3`:
+
+==============  ==============  ==============  ==============  ======================  ======================
+:math:`x_0`     :math:`x_1`     :math:`x_2`     :math:`x_3`     Probability of Pattern  Probability of +1 byte
+==============  ==============  ==============  ==============  ======================  ======================
+any             any             any             :math:`=0`      |fp0|                   :math:`1`
+any             any             :math:`=0`      :math:`≠0`      |fp1|                   :math:`P_{x_3 < 2}`
+any             :math:`=0`      :math:`≠0`      :math:`≠0`      |fp2|                   :math:`P_{x_3 < 3}`
+:math:`=0`      :math:`≠0`      :math:`≠0`      :math:`≠0`      |fp3|                   :math:`P_{x_3 < 4}`
+:math:`≠0`      :math:`≠0`      :math:`≠0`      :math:`≠0`      |fp4|                   :math:`P_{x_3 < 5}`
+==============  ==============  ==============  ==============  ======================  ======================
+
+..  |fp0|   replace::   :math:`P_{x_3=0}`
+..  |fp1|   replace::   :math:`P_{x_2=0} \times P_{x_3≠0}`
+..  |fp2|   replace::   :math:`P_{x_1=0} \times P_{x_2≠0} \times P_{x_3≠0}`
+..  |fp3|   replace::   :math:`P_{x_0=0} \times P_{x_1≠0} \times P_{x_2≠0} \times P_{x_3≠0}`
+..  |fp4|   replace::   :math:`P_{x_0≠0} \times P_{x_1≠0} \times P_{x_2≠0} \times P_{x_3≠0}`
+
+For byte probabilities that are evenly distributed, this simplifies to:
+
+==============  ==============  ==============  ==============  ======================  ==========================
+:math:`x_0`     :math:`x_1`     :math:`x_2`     :math:`x_3`     Probability of Pattern  Probability of +1 byte
+==============  ==============  ==============  ==============  ======================  ==========================
+any             any             any             :math:`=0`      |f2p0|                  :math:`1`
+any             any             :math:`=0`      :math:`≠0`      |f2p1|                  :math:`\frac{1}{255}`
+any             :math:`=0`      :math:`≠0`      :math:`≠0`      |f2p2|                  :math:`\frac{2}{255}`
+:math:`=0`      :math:`≠0`      :math:`≠0`      :math:`≠0`      |f2p3|                  :math:`\frac{3}{255}`
+:math:`≠0`      :math:`≠0`      :math:`≠0`      :math:`≠0`      |f2p4|                  :math:`\frac{4}{255}`
+==============  ==============  ==============  ==============  ======================  ==========================
+
+..  |f2p0|  replace::   :math:`\frac{1}{256}`
+..  |f2p1|  replace::   :math:`\frac{1}{256}\left(\frac{255}{256}\right)^1`
+..  |f2p2|  replace::   :math:`\frac{1}{256}\left(\frac{255}{256}\right)^2`
+..  |f2p3|  replace::   :math:`\frac{1}{256}\left(\frac{255}{256}\right)^3`
+..  |f2p4|  replace::   :math:`\left(\frac{255}{256}\right)^4`

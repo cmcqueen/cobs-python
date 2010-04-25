@@ -44,10 +44,11 @@ more reasonable worst-case overhead.
 
 For more details about COBS, see the references [COBS]_ [COBSPPP]_.
 
-I have included a variant on COBS, `COBS/R`_, which slightly modifies COBS to
-often avoid the +1 byte overhead of COBS. So in many cases, especially for
-smaller packets, the size of a COBS/R encoded packet is the same size as the
-original packet. See below for more details about `COBS/R`_.
+I have included a variant on COBS, :ref:`COBS/R <COBS/R>`, which slightly
+modifies COBS to often avoid the +1 byte overhead of COBS. So in many cases,
+especially for smaller packets, the size of a COBS/R encoded packet is the
+same size as the original packet. For more details about COBS/R see the
+:ref:`documentation for Consistent Overhead Byte Stuffing—Reduced <COBS/R>`.
 
 
 References
@@ -109,7 +110,7 @@ Python 2.x)::
     >>> cobs.decode(encoded)
     'Hello world\x00This is a test'
 
-`COBS/R`_ usage is almost identical::
+:ref:`COBS/R <COBS/R>` usage is almost identical::
 
     >>> from cobs import cobsr
     >>> encoded = cobsr.encode('Hello world\x00This is a test')
