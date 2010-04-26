@@ -160,21 +160,20 @@ Going back to the general case, we can make several observations about what
 sort of byte distributions more favourably avoid the +1 byte in the COBS/R
 encoding.
 
-    *   Since a zero in the final byte definitely adds a +1 overhead, a low
-        probability of a zero for the final byte is favourable.
-    *   A higher probability of a zero byte value is favourable for all bytes
-        except the last one.
-    *   For byte values other than zero, a byte distribution with a higher
-        probability of high-value bytes is favourable.
+    *   For all bytes except the final one, a higher probability of a zero
+        byte value is more favourable.
+    *   For the final byte of the message, a probability distribution that
+        favours high byte values is more favourable.
 
 If the byte distribution of a communication protocol is known in advance,
 it may be possible and worthwhile to pre-process the data bytes before
 COBS/R encoding, to reduce the average size of the COBS/R encoded data.
 For example, possible byte manipulations may be:
 
-    *   Negate every byte. This swaps the distribution of high- and low-
-        value bytes, without affecting the zero byte itself.
-    *   XOR every byte with a fixed value.
+    *   If a particular byte value is statistically common, XOR every byte
+        of the message (except the last byte) with that byte value.
+    *   Add an offset to the final byte value, or negate the final byte
+        value, to shift the distribution to favour high byte values.
 
 Of course after decoding, the data would have to be post-processed to reverse
-the effects of the encoding pre-processing step.
+the effects of any encoding pre-processing step.
