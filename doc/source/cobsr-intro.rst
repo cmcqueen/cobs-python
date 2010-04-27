@@ -7,25 +7,38 @@ Consistent Overhead Byte Stuffing—Reduced (COBS/R)
 ===================================================
 
 This describes a modification of COBS, which I'm calling "Consistent Overhead
-Byte Stuffing—Reduced" (COBS/R), is provided in the :mod:`cobs.cobsr` module.
-Its purpose is to save one byte from the encoded form in some cases. Plain
-COBS encoding always has a +1 byte encoding overhead [COBS]_. COBS/R can often
-avoid the +1 byte, which can be a useful savings if it is mostly small
-messages that are being encoded.
+Byte Stuffing—Reduced" (COBS/R). Its purpose is to save one byte from the
+encoded form in some cases. Plain COBS encoding always has a +1 byte encoding
+overhead [C1]_. This is possibly undesirable, particularly in a system that
+encodes mostly small messages, where the +1 byte overhead would impose a
+noticeable increase in the bandwidth requirements. "Base Adaptation Byte
+Stuffing" (BABS) is one proposal to avoid this +1 byte overhead, however it is
+computationally expensive [C2]_.
+
+COBS/R is a small modification of COBS that can often avoid the +1 byte
+overhead of COBS, yet is computationally very simple. In terms of message
+encoding overhead in bytes, it is not expected to achieve performance as close
+to the theoretical optimum as BABS, yet it is an improvement over plain COBS
+encoding without any significant increase in computational complexity.
+
+
+----------------------------
+COBS/R Encoding Modification
+----------------------------
 
 In plain COBS, the last length code byte in the message has some inherent
 redundancy: if it is greater than the number of remaining bytes, this is
 detected as an error.
 
-In COBS/R, instead we opportunistically replace the final length code byte
-with the final data byte, whenever the value of the final data byte is greater
-than or equal to what the final length value would normally be. This variation
-can be unambiguously decoded: the decoder notices that the length code is
-greater than the number of remaining bytes.
+In COBS/R, instead we opportunistically replace the final length code byte with
+the final data byte, whenever the value of the final data byte is greater than
+or equal to what the final length value would normally be. This variation can
+be unambiguously decoded: the decoder notices that the length code is greater
+than the number of remaining bytes.
 
---------
+
 Examples
---------
+````````
 
 The byte values in the examples are in hex.
 
@@ -78,12 +91,19 @@ be a decoding error in regular COBS, but in COBS/R it is used to save one byte
 in the encoded message.
 
 
----------------------------
-Encoding Sizes Using COBS/R
----------------------------
+------------------------
+COBS/R Encoding Overhead
+------------------------
 
-Given an input data packet of size *n*, COBS/R encoding may or may not add a
-+1 byte overhead, depending on the contents of the input data.
+Given an input data packet of size *n*, COBS/R encoding may or may not add a +1
+byte overhead, depending on the contents of the input data. The probability of
+the +1 byte overhead can be calculated, and hence, the average overhead can be
+calculated.
+
+The calculations are more complicated for the case of message sizes greater
+than 254 bytes. COBS/R is of particular interest for smaller message sizes, so
+the calculations will focus on the simpler case of message sizes smaller than
+255 bytes.
 
 
 General Case
@@ -107,8 +127,9 @@ any             :math:`=0`      :math:`≠0`      :math:`≠0`      |fp2|       
 ..  |fp3|   replace::   :math:`P(x_0=0) \times P(x_1≠0) \times P(x_2≠0) \times P(x_3≠0)`
 ..  |fp4|   replace::   :math:`P(x_0≠0) \times P(x_1≠0) \times P(x_2≠0) \times P(x_3≠0)`
 
-Multiply the last two columns, and sum for all rows. For a message of length :math:`n` where
-:math:`1 \le n \le 254`, the general equation for the probability of the +1 byte is: 
+Multiply the last two columns, and sum for all rows. For a message of length
+:math:`n` where :math:`1 \le n \le 254`, the general equation for the
+probability of the +1 byte is:
 
 ..  math::  P(x_{n-1} \le n|x_{n-1}≠0) \prod_{k=0}^{n-1} P(x_k≠0) + \sum_{i=0}^{n-2} \left[ P(x_{n-1} \le (n-1-i)|x_{n-1}≠0) P(x_i=0) \prod_{k=i+1}^{n-1} P(x_k≠0) \right] + P(x_{n-1}=0)
 
@@ -165,15 +186,31 @@ encoding.
     *   For the final byte of the message, a probability distribution that
         favours high byte values is more favourable.
 
-If the byte distribution of a communication protocol is known in advance,
-it may be possible and worthwhile to pre-process the data bytes before
-COBS/R encoding, to reduce the average size of the COBS/R encoded data.
-For example, possible byte manipulations may be:
+If the byte distribution of a communication protocol is known in advance, it
+may be possible and worthwhile to pre-process the data bytes before COBS/R
+encoding, to reduce the average size of the COBS/R encoded data. For example,
+possible byte manipulations may be:
 
-    *   If a particular byte value is statistically common, XOR every byte
-        of the message (except the last byte) with that byte value.
-    *   Add an offset to the final byte value, or negate the final byte
-        value, to shift the distribution to favour high byte values.
+    *   For all bytes except the final one, if a particular byte value is
+        statistically common, XOR every byte of the message (except the last
+        byte) with that byte value.
+    *   For the final byte of the message, add an offset to the final byte
+        value, or negate the final byte value, to shift the distribution to
+        favour high byte values.
 
 Of course after decoding, the data would have to be post-processed to reverse
 the effects of any encoding pre-processing step.
+
+
+----------
+References
+----------
+
+.. [C1]     | `Consistent Overhead Byte Stuffing <http://www.stuartcheshire.org/papers/COBSforToN.pdf>`_
+            | Stuart Cheshire and Mary Baker
+            | IEEE/ACM Transations on Networking, Vol. 7, No. 2, April 1999
+
+.. [C2]     | `Bandwidth-efficient byte stuffing <http://www.inescporto.pt/~jsc/publications/conferences/2007JaimeICC.pdf>`_
+            | Jaime S. Cardoso
+            | Universidade do Porto / INESC Porto
+            | IEEE ICC 2007

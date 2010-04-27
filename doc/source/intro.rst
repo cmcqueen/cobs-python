@@ -100,35 +100,10 @@ Usage
 
 The modules provide an :func:`encode` and a :func:`decode` function.
 
-In Python 2.x, the input should be a byte string. Basic usage (example in
-Python 2.x)::
+For usage, see the examples provided in the modules:
 
-    >>> from cobs import cobs
-    >>> encoded = cobs.encode('Hello world\x00This is a test')
-    >>> encoded
-    '\x0cHello world\x0fThis is a test'
-    >>> cobs.decode(encoded)
-    'Hello world\x00This is a test'
-
-:ref:`COBS/R <COBS/R>` usage is almost identical::
-
-    >>> from cobs import cobsr
-    >>> encoded = cobsr.encode('Hello world\x00This is a test')
-    >>> encoded
-    '\x0cHello worldtThis is a tes'
-    >>> cobsr.decode(encoded)
-    'Hello world\x00This is a test'
-
-For Python 3.x, input cannot be Unicode strings. Byte strings are acceptable
-input. Any type that implements the buffer protocol, providing a single
-block of bytes, is also acceptable as input::
-
-    >>> from cobs import cobs
-    >>> encoded = cobs.encode(bytearray(b'Hello world\x00This is a test'))
-    >>> encoded
-    b'\x0cHello world\x0fThis is a test'
-    >>> cobs.decode(encoded)
-    b'Hello world\x00This is a test'
+    * :ref:`COBS Examples <cobs-examples>` in :mod:`cobs.cobs`
+    * :ref:`COBS/R Examples <cobsr-examples>` in :mod:`cobs.cobsr`
 
 
 -------------------------
