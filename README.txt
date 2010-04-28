@@ -154,6 +154,11 @@ installed to build a Python extension module, run the following command::
 
     python setup.py install
 
+If you cannot build the C extension, you may install just the pure Python
+implementation, using the following command::
+
+    python setup.py build_py install --skip-build
+
 
 ------------
 Unit Testing
