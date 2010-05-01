@@ -6,20 +6,33 @@
 Consistent Overhead Byte Stuffing—Reduced (COBS/R)
 ===================================================
 
+:Author: Craig McQueen
+:Contact: http://craig.mcqueen.id.au/
+:Copyright: 2010 Craig McQueen
+
 This describes a modification of COBS, which I'm calling "Consistent Overhead
 Byte Stuffing—Reduced" (COBS/R). Its purpose is to save one byte from the
 encoded form in some cases. Plain COBS encoding always has a +1 byte encoding
 overhead [C1]_. This is possibly undesirable, particularly in a system that
 encodes mostly small messages, where the +1 byte overhead would impose a
-noticeable increase in the bandwidth requirements. "Base Adaptation Byte
-Stuffing" (BABS) is one proposal to avoid this +1 byte overhead, however it is
-computationally expensive [C2]_.
+noticeable increase in the bandwidth requirements.
+
+"Base Adaptation Byte Stuffing" (BABS) is one proposal to avoid the +1 byte
+overhead imposed by COBS, however BABS is computationally expensive [C2]_.
 
 COBS/R is a small modification of COBS that can often avoid the +1 byte
 overhead of COBS, yet is computationally very simple. In terms of message
 encoding overhead in bytes, it is not expected to achieve performance as close
 to the theoretical optimum as BABS, yet it is an improvement over plain COBS
 encoding without any significant increase in computational complexity.
+
+COBS/R has the following features:
+
+* Worst-case encoding overhead is the same as COBS
+* Best-case encoding overhead is zero bytes, an improvement over COBS
+* Computation complexity is approximately the same as COBS, much simpler than BABS
+* Same theoretical encoding delay as COBS (up to 254 bytes of temporary buffering)
+* Same theoretical decoding delay as COBS (1 byte of temporary buffering)
 
 
 ----------------------------
@@ -38,11 +51,12 @@ than the number of remaining bytes.
 
 
 Examples
-````````
+^^^^^^^^
 
 The byte values in the examples are in hex.
 
 First example:
+""""""""""""""
 
 Input:
 
@@ -58,6 +72,7 @@ are bold):
 ======  ======  ======  ======  ======  ======  ======
 
 Second example:
+"""""""""""""""
 
 The second example is almost the same, except the final data byte value is
 greater than what the length byte would be.
@@ -107,7 +122,7 @@ the calculations will focus on the simpler case of message sizes smaller than
 
 
 General Case
-````````````
+^^^^^^^^^^^^
 
 Example for :math:`n=4`:
 
@@ -135,7 +150,7 @@ probability of the +1 byte is:
 
 
 Even Byte Distribution Case
-```````````````````````````
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 We can simplify this for the simpler case of messages with byte value
 probabilities that are evenly distributed. In this case:
@@ -175,7 +190,7 @@ Which simplifies to:
 
 
 Further Observations for General Case
-`````````````````````````````````````
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Going back to the general case, we can make several observations about what
 sort of byte distributions more favourably avoid the +1 byte in the COBS/R
