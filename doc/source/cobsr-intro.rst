@@ -124,29 +124,29 @@ the calculations will focus on the simpler case of message sizes smaller than
 General Case
 ^^^^^^^^^^^^
 
-Example for :math:`n=4`:
+Example for *n*\ =4:
 
 ==============  ==============  ==============  ==============  ======================  ======================
 :math:`x_0`     :math:`x_1`     :math:`x_2`     :math:`x_3`     Probability of Pattern  Probability of +1 byte
 ==============  ==============  ==============  ==============  ======================  ======================
 any             any             any             :math:`=0`      |fp0|                   :math:`1`
-any             any             :math:`=0`      :math:`≠0`      |fp1|                   :math:`P(x_3 \le 1|x_3≠0)`
-any             :math:`=0`      :math:`≠0`      :math:`≠0`      |fp2|                   :math:`P(x_3 \le 2|x_3≠0)`
-:math:`=0`      :math:`≠0`      :math:`≠0`      :math:`≠0`      |fp3|                   :math:`P(x_3 \le 3|x_3≠0)`
-:math:`≠0`      :math:`≠0`      :math:`≠0`      :math:`≠0`      |fp4|                   :math:`P(x_3 \le 4|x_3≠0)`
+any             any             :math:`=0`      :math:`\ne 0`   |fp1|                   :math:`P(x_3 \le 1|x_3\ne 0)`
+any             :math:`=0`      :math:`\ne 0`   :math:`\ne 0`   |fp2|                   :math:`P(x_3 \le 2|x_3\ne 0)`
+:math:`=0`      :math:`\ne 0`   :math:`\ne 0`   :math:`\ne 0`   |fp3|                   :math:`P(x_3 \le 3|x_3\ne 0)`
+:math:`\ne 0`   :math:`\ne 0`   :math:`\ne 0`   :math:`\ne 0`   |fp4|                   :math:`P(x_3 \le 4|x_3\ne 0)`
 ==============  ==============  ==============  ==============  ======================  ======================
 
 ..  |fp0|   replace::   :math:`P(x_3=0)`
-..  |fp1|   replace::   :math:`P(x_2=0) \times P(x_3≠0)`
-..  |fp2|   replace::   :math:`P(x_1=0) \times P(x_2≠0) \times P(x_3≠0)`
-..  |fp3|   replace::   :math:`P(x_0=0) \times P(x_1≠0) \times P(x_2≠0) \times P(x_3≠0)`
-..  |fp4|   replace::   :math:`P(x_0≠0) \times P(x_1≠0) \times P(x_2≠0) \times P(x_3≠0)`
+..  |fp1|   replace::   :math:`P(x_2=0) \times P(x_3\ne 0)`
+..  |fp2|   replace::   :math:`P(x_1=0) \times P(x_2\ne 0) \times P(x_3\ne 0)`
+..  |fp3|   replace::   :math:`P(x_0=0) \times P(x_1\ne 0) \times P(x_2\ne 0) \times P(x_3\ne 0)`
+..  |fp4|   replace::   :math:`P(x_0\ne 0) \times P(x_1\ne 0) \times P(x_2\ne 0) \times P(x_3\ne 0)`
 
 Multiply the last two columns, and sum for all rows. For a message of length
-:math:`n` where :math:`1 \le n \le 254`, the general equation for the
+*n* where :math:`1 \le n \le 254`, the general equation for the
 probability of the +1 byte is:
 
-..  math::  P(x_{n-1} \le n|x_{n-1}≠0) \prod_{k=0}^{n-1} P(x_k≠0) + \sum_{i=0}^{n-2} \left[ P(x_{n-1} \le (n-1-i)|x_{n-1}≠0) P(x_i=0) \prod_{k=i+1}^{n-1} P(x_k≠0) \right] + P(x_{n-1}=0)
+..  math::  P(x_{n-1} \le n|x_{n-1}\ne 0) \prod_{k=0}^{n-1} P(x_k\ne 0) + \sum_{i=0}^{n-2} \left[ P(x_{n-1} \le (n-1-i)|x_{n-1}\ne 0) P(x_i=0) \prod_{k=i+1}^{n-1} P(x_k\ne 0) \right] + P(x_{n-1}=0)
 
 
 Even Byte Distribution Case
@@ -155,22 +155,22 @@ Even Byte Distribution Case
 We can simplify this for the simpler case of messages with byte value
 probabilities that are evenly distributed. In this case:
 
-..  math::  P(x_{n-1} \le n|x_{n-1}≠0) = \frac{n}{255}
+..  math::  P(x_{n-1} \le n|x_{n-1}\ne 0) = \frac{n}{255}
 
-..  math::  P(x_i≠0) = \frac{255}{256}
+..  math::  P(x_i\ne 0) = \frac{255}{256}
 
 ..  math::  P(x_i=0) = \frac{1}{256}
 
-Simplified example for :math:`n=4`:
+Simplified example for *n*\ =4:
 
 ==============  ==============  ==============  ==============  ======================  ==========================
 :math:`x_0`     :math:`x_1`     :math:`x_2`     :math:`x_3`     Probability of Pattern  Probability of +1 byte
 ==============  ==============  ==============  ==============  ======================  ==========================
 any             any             any             :math:`=0`      |f2p0|                  :math:`1`
-any             any             :math:`=0`      :math:`≠0`      |f2p1|                  :math:`\frac{1}{255}`
-any             :math:`=0`      :math:`≠0`      :math:`≠0`      |f2p2|                  :math:`\frac{2}{255}`
-:math:`=0`      :math:`≠0`      :math:`≠0`      :math:`≠0`      |f2p3|                  :math:`\frac{3}{255}`
-:math:`≠0`      :math:`≠0`      :math:`≠0`      :math:`≠0`      |f2p4|                  :math:`\frac{4}{255}`
+any             any             :math:`=0`      :math:`\ne 0`   |f2p1|                  :math:`\frac{1}{255}`
+any             :math:`=0`      :math:`\ne 0`   :math:`\ne 0`   |f2p2|                  :math:`\frac{2}{255}`
+:math:`=0`      :math:`\ne 0`   :math:`\ne 0`   :math:`\ne 0`   |f2p3|                  :math:`\frac{3}{255}`
+:math:`\ne 0`   :math:`\ne 0`   :math:`\ne 0`   :math:`\ne 0`   |f2p4|                  :math:`\frac{4}{255}`
 ==============  ==============  ==============  ==============  ======================  ==========================
 
 ..  |f2p0|  replace::   :math:`\frac{1}{256}`
@@ -179,7 +179,7 @@ any             :math:`=0`      :math:`≠0`      :math:`≠0`      |f2p2|      
 ..  |f2p3|  replace::   :math:`\frac{1}{256}\left(\frac{255}{256}\right)^3`
 ..  |f2p4|  replace::   :math:`\left(\frac{255}{256}\right)^4`
 
-The simplified equation for a message of length :math:`n` where
+The simplified equation for a message of length *n* where
 :math:`1 \le n \le 254` is:
 
 ..  math::  \frac{n}{255} \left(\frac{255}{256}\right)^n + \frac{1}{255 \times 256} \sum_{i=1}^{n-1} \left[ i \left(\frac{255}{256}\right)^i \right] + \frac{1}{256}
@@ -187,6 +187,26 @@ The simplified equation for a message of length :math:`n` where
 Which simplifies to:
 
 ..  math::  \frac{257}{256}-\left(\frac{255}{256}\right)^n
+
+
+Table 1 of [C2]_ shows the overhead of BABS compared to COBS and PPP.
+We will duplicate this table up to N=128, comparing the figures for COBS/R
+(instead of PPP):
+
+====  ================  ================  ================  ==========================  
+N     mean(OH) BABS     mean(OH) COBS     mean(OH) COBS/R   max(OH) BABS, COBS, COBS/R     
+====  ================  ================  ================  ==========================  
+1     0.39062           100               0.78125           100
+2     0.39062           50                0.58517           50
+4     0.38948           25                0.48600           25
+8     0.38665           12.5              0.43415           12.5
+16    0.38078           6.25              0.40380           6.25
+32    0.36927           3.125             0.38008           3.125
+64    0.34756           1.5625            0.35232           1.5625
+128   0.30906           0.78125           0.31091           0.78125
+====  ================  ================  ================  ==========================  
+
+..  math::  OVERHEAD: OH = \frac {M-N}{N} \times 100 \%
 
 
 Further Observations for General Case
