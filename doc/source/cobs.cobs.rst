@@ -18,7 +18,7 @@ used.
 In Python 3.x, byte strings are acceptable input. Types that implement the
 buffer protocol, providing a simple buffer of bytes, are also acceptable. Thus
 types such as ``bytearray`` and ``array('B',...)`` are accepted input. The
-output type is always a byte array.
+output type is always a byte string.
 
 
 :func:`encode` -- COBS encode

@@ -175,6 +175,17 @@ Alternatively, in the ``test`` directory run::
     python test_cobsr.py
 
 
+-------------
+Documentation
+-------------
+
+Documentation is written with Sphinx. Source files are provided in the ``doc``
+directory. It can be built using Sphinx 0.6.5. It uses the ``pngmath`` Sphinx
+extension, which requires Latex and ``dvipng`` to be installed.
+
+The documentation is available online at: http://packages.python.org/cobs/
+
+
 -------
 License
 -------
