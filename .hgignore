@@ -1,5 +1,8 @@
 
-dist/.*
-build/.*
-MANIFEST
-.*\.pyc
+^dist/.*
+^build/.*
+^MANIFEST$
+\.pyc
+^doc/.*\.log$
+^doc/build/.*
+
