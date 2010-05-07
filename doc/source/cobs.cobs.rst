@@ -26,26 +26,40 @@ output type is always a byte string.
 
 The function encodes a byte string according to the COBS encoding method.
 
-.. function:: encode(data)
+..  function:: encode(data)
 
     :param data:    Data to encode.
     :type data:     byte string
 
-    :return:        Encoded data.
+    :return:        COBS encoded data.
     :rtype:         byte string
+
+    The COBS encoded data is guaranteed not to contain zero ``b'\x00'`` bytes.
+
+    The encoded data length will always be at least one byte longer than the
+    input length. Additionally, it *may* increase by one extra byte for every
+    254 bytes of input data.
+
 
 :func:`decode` -- COBS decode
 -----------------------------
 
 The function decodes a byte string according to the COBS method.
 
-.. function:: decode(data)
+..  function:: decode(data)
 
-    :param data:    Data to decode.
+    :param data:    COBS encoded data to decode.
     :type data:     byte string
 
     :return:        Decoded data.
     :rtype:         byte string
+
+    If a zero ``b'\x00'`` byte is found in the encoded input data, a
+    ``ValueError`` exception will be raised.
+    
+    If the final length code byte in the encoded input data is not followed by
+    the expected number of data bytes, this is an invalid COBS encoded data
+    input, and ``ValueError`` is raised.
 
 
 ..  _cobs-examples:
