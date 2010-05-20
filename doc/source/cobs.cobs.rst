@@ -55,11 +55,11 @@ The function decodes a byte string according to the COBS method.
     :rtype:         byte string
 
     If a zero ``b'\x00'`` byte is found in the encoded input data, a
-    ``ValueError`` exception will be raised.
+    ``cobs.DecodeError`` exception will be raised.
     
     If the final length code byte in the encoded input data is not followed by
     the expected number of data bytes, this is an invalid COBS encoded data
-    input, and ``ValueError`` is raised.
+    input, and ``cobs.DecodeError`` is raised.
 
 
 ..  _cobs-examples:

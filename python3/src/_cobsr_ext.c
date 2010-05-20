@@ -51,6 +51,9 @@
 #endif
 
 
+#define GETSTATE(M) ((struct module_state *) PyModule_GetState(M))
+
+
 /*
  * Given a PyObject* obj, fill in the Py_buffer* viewp with the result
  * of PyObject_GetBuffer.  Sets and exception and issues a return NULL
@@ -79,8 +82,33 @@
 
 
 /*****************************************************************************
+ * Types
+ ****************************************************************************/
+
+struct module_state
+{
+    /* cobsr.DecodeError exception class. */
+    PyObject * CobsrDecodeError;
+};
+
+
+/*****************************************************************************
  * Functions
  ****************************************************************************/
+
+static int cobsr_traverse(PyObject *m, visitproc visit, void *arg)
+{
+    Py_VISIT(GETSTATE(m)->CobsrDecodeError);
+    return 0;
+}
+
+
+static int cobsr_clear(PyObject *m)
+{
+    Py_CLEAR(GETSTATE(m)->CobsrDecodeError);
+    return 0;
+}
+
 
 /*
  * cobsr.encode
@@ -222,7 +250,7 @@ PyDoc_STRVAR(cobsr_decode__doc__,
     "Input should be a byte string that has been COBS/R encoded. Output\n"
     "is also a byte string.\n"
     "\n"
-    "A ValueError exception will be raised if the encoded data\n"
+    "A cobsr.DecodeError exception will be raised if the encoded data\n"
     "is invalid. That is, if the encoded data contains zeros."
 );
 
@@ -280,7 +308,7 @@ cobsr_decode(PyObject* module, PyObject* arg)
             {
                 PyBuffer_Release(&src_py_buffer);
                 Py_DECREF(dst_py_obj_ptr);
-                PyErr_SetString(PyExc_ValueError, "zero byte found in input");
+                PyErr_SetString(GETSTATE(module)->CobsrDecodeError, "zero byte found in input");
                 return NULL;
             }
 
@@ -293,7 +321,7 @@ cobsr_decode(PyObject* module, PyObject* arg)
                 {
                     PyBuffer_Release(&src_py_buffer);
                     Py_DECREF(dst_py_obj_ptr);
-                    PyErr_SetString(PyExc_ValueError, "zero byte found in input");
+                    PyErr_SetString(GETSTATE(module)->CobsrDecodeError, "zero byte found in input");
                     return NULL;
                 }
                 *dst_write_ptr++ = src_byte;
@@ -348,12 +376,11 @@ static struct PyModuleDef moduleDef =
     PyModuleDef_HEAD_INIT,
     "_cobsr_ext",                   // name of module
     module__doc__,                  // module documentation
-    -1,                             // size of per-interpreter state of the module,
-                                    // or -1 if the module keeps state in global variables.
+    sizeof(struct module_state),    // size of per-interpreter state of the module
     methodTable,
     NULL,
-    NULL,
-    NULL,
+    cobsr_traverse,
+    cobsr_clear,
     NULL
 };
 
@@ -366,10 +393,27 @@ PyMODINIT_FUNC
 PyInit__cobsr_ext(void)
 {
     PyObject * module;
+    struct module_state * st;
 
 
     /* Initialise cobsr module C extension cobsr._cobsr_ext */
     module = PyModule_Create(&moduleDef);
+    if (module == NULL)
+    {
+        return NULL;
+    }
+
+    st = GETSTATE(module);
+
+    /* Initialise cobsr.DecodeError exception class. */
+    st->CobsrDecodeError = PyErr_NewException("_cobsr_ext.DecodeError", NULL, NULL);
+    if (st->CobsrDecodeError == NULL)
+    {
+        Py_DECREF(module);
+        return NULL;
+    }
+    Py_INCREF(st->CobsrDecodeError);
+    PyModule_AddObject(module, "DecodeError", st->CobsrDecodeError);
 
     return module;
 }

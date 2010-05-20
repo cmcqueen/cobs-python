@@ -5,6 +5,10 @@ This version is for Python 3.x.
 """
 
 
+class DecodeError(Exception):
+    pass
+
+
 def _get_buffer_view(in_bytes):
     mv = memoryview(in_bytes)
     if mv.ndim > 1 or mv.itemsize > 1:
@@ -52,7 +56,7 @@ def decode(in_bytes):
     Input should be a byte string that has been COBS encoded. Output
     is also a byte string.
     
-    A ValueError exception will be raised if the encoded data
+    A cobs.DecodeError exception will be raised if the encoded data
     is invalid."""
     if isinstance(in_bytes, str):
         raise TypeError('Unicode-objects are not supported; byte buffer objects only')
@@ -64,16 +68,16 @@ def decode(in_bytes):
         while True:
             length = ord(in_bytes_mv[idx])
             if length == 0:
-                raise ValueError("zero byte found in input")
+                raise DecodeError("zero byte found in input")
             idx += 1
             end = idx + length - 1
             copy_mv = in_bytes_mv[idx:end]
             if b'\x00' in copy_mv:
-                raise ValueError("zero byte found in input")
+                raise DecodeError("zero byte found in input")
             out_bytes += copy_mv
             idx = end
             if idx > len(in_bytes_mv):
-                raise ValueError("not enough input bytes for length code")
+                raise DecodeError("not enough input bytes for length code")
             if idx < len(in_bytes_mv):
                 if length < 0xFF:
                     out_bytes.append(0)

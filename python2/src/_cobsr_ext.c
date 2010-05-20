@@ -64,6 +64,16 @@ typedef int Py_ssize_t;
 
 
 /*****************************************************************************
+ * Variables
+ ****************************************************************************/
+
+/*
+ * cobsr.DecodeError exception class.
+ */
+static PyObject *CobsrDecodeError;
+
+
+/*****************************************************************************
  * Functions
  ****************************************************************************/
 
@@ -192,7 +202,7 @@ PyDoc_STRVAR(cobsr_decode__doc__,
     "Input should be a byte string that has been COBS/R encoded. Output\n"
     "is also a byte string.\n"
     "\n"
-    "A ValueError exception will be raised if the encoded data\n"
+    "A cobsr.DecodeError exception will be raised if the encoded data\n"
     "is invalid. That is, if the encoded data contains zeros."
 );
 
@@ -236,7 +246,7 @@ cobsr_decode(PyObject* self, PyObject* args)
             if (len_code == 0)
             {
                 Py_DECREF(dst_py_obj_ptr);
-                PyErr_SetString(PyExc_ValueError, "zero byte found in input");
+                PyErr_SetString(CobsrDecodeError, "zero byte found in input");
                 return NULL;
             }
 
@@ -248,7 +258,7 @@ cobsr_decode(PyObject* self, PyObject* args)
                 if (src_byte == 0)
                 {
                     Py_DECREF(dst_py_obj_ptr);
-                    PyErr_SetString(PyExc_ValueError, "zero byte found in input");
+                    PyErr_SetString(CobsrDecodeError, "zero byte found in input");
                     return NULL;
                 }
                 *dst_write_ptr++ = src_byte;
@@ -302,11 +312,21 @@ static PyMethodDef methodTable[] =
 PyMODINIT_FUNC
 init_cobsr_ext(void)
 {
-    PyObject *m;
+    PyObject * module;
 
     /* Initialise cobsr module C extension cobsr._cobsr_ext */
-    m = Py_InitModule3("_cobsr_ext", methodTable, module__doc__);
-    if (m == NULL)
+    module = Py_InitModule3("_cobsr_ext", methodTable, module__doc__);
+    if (module == NULL)
         return;
+
+    /* Initialise cobsr.DecodeError exception class. */
+    CobsrDecodeError = PyErr_NewException("_cobsr_ext.DecodeError", NULL, NULL);
+    if (CobsrDecodeError == NULL)
+    {
+        Py_DECREF(module);
+        return NULL;
+    }
+    Py_INCREF(CobsrDecodeError);
+    PyModule_AddObject(module, "DecodeError", CobsrDecodeError);
 }
 

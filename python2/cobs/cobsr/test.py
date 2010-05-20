@@ -76,7 +76,7 @@ class PredefinedDecodeErrorTests(unittest.TestCase):
 
     def test_predefined_decode_error(self):
         for test_encoded in self.decode_error_test_strings:
-            self.assertRaises(ValueError, cobsr.decode, test_encoded)
+            self.assertRaises(cobsr.DecodeError, cobsr.decode, test_encoded)
 
 
 class ZerosTest(unittest.TestCase):

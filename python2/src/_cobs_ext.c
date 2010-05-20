@@ -60,6 +60,16 @@ typedef int Py_ssize_t;
 
 
 /*****************************************************************************
+ * Variables
+ ****************************************************************************/
+
+/*
+ * cobs.DecodeError exception class.
+ */
+static PyObject *CobsDecodeError;
+
+
+/*****************************************************************************
  * Functions
  ****************************************************************************/
 
@@ -170,7 +180,7 @@ PyDoc_STRVAR(cobs_decode__doc__,
     "Input should be a byte string that has been COBS encoded. Output\n"
     "is also a byte string.\n"
     "\n"
-    "A ValueError exception will be raised if the encoded data\n"
+    "A cobs.DecodeError exception will be raised if the encoded data\n"
     "is invalid."
 );
 
@@ -214,7 +224,7 @@ cobs_decode(PyObject* self, PyObject* args)
             if (len_code == 0)
             {
                 Py_DECREF(dst_py_obj_ptr);
-                PyErr_SetString(PyExc_ValueError, "zero byte found in input");
+                PyErr_SetString(CobsDecodeError, "zero byte found in input");
                 return NULL;
             }
             len_code--;
@@ -223,7 +233,7 @@ cobs_decode(PyObject* self, PyObject* args)
             if (len_code > remaining_bytes)
             {
                 Py_DECREF(dst_py_obj_ptr);
-                PyErr_SetString(PyExc_ValueError, "not enough input bytes for length code");
+                PyErr_SetString(CobsDecodeError, "not enough input bytes for length code");
                 return NULL;
             }
 
@@ -233,7 +243,7 @@ cobs_decode(PyObject* self, PyObject* args)
                 if (src_byte == 0)
                 {
                     Py_DECREF(dst_py_obj_ptr);
-                    PyErr_SetString(PyExc_ValueError, "zero byte found in input");
+                    PyErr_SetString(CobsDecodeError, "zero byte found in input");
                     return NULL;
                 }
                 *dst_write_ptr++ = src_byte;
@@ -282,11 +292,21 @@ static PyMethodDef methodTable[] =
 PyMODINIT_FUNC
 init_cobs_ext(void)
 {
-    PyObject *m;
+    PyObject *module;
 
     /* Initialise cobs module C extension cobs._cobsext */
-    m = Py_InitModule3("_cobs_ext", methodTable, module__doc__);
-    if (m == NULL)
+    module = Py_InitModule3("_cobs_ext", methodTable, module__doc__);
+    if (module == NULL)
         return;
+
+    /* Initialise cobs.DecodeError exception class. */
+    CobsDecodeError = PyErr_NewException("_cobs_ext.DecodeError", NULL, NULL);
+    if (CobsDecodeError == NULL)
+    {
+        Py_DECREF(module);
+        return NULL;
+    }
+    Py_INCREF(CobsDecodeError);
+    PyModule_AddObject(module, "DecodeError", CobsDecodeError);
 }
 
