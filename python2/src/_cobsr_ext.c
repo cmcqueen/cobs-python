@@ -324,7 +324,7 @@ init_cobsr_ext(void)
     if (CobsrDecodeError == NULL)
     {
         Py_DECREF(module);
-        return NULL;
+        return;
     }
     Py_INCREF(CobsrDecodeError);
     PyModule_AddObject(module, "DecodeError", CobsrDecodeError);

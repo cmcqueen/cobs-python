@@ -304,7 +304,7 @@ init_cobs_ext(void)
     if (CobsDecodeError == NULL)
     {
         Py_DECREF(module);
-        return NULL;
+        return;
     }
     Py_INCREF(CobsDecodeError);
     PyModule_AddObject(module, "DecodeError", CobsDecodeError);
