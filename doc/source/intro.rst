@@ -136,7 +136,7 @@ implementation, using the following command::
 Unit Testing
 ------------
 
-Basic unit testing is in the :mod:`test` sub-module, e.g. :mod:`cobs.cobs.test`.
+Unit testing is in the :mod:`test` sub-module, e.g. :mod:`cobs.cobs.test`.
 To run it on Python >=2.5::
 
     python -m cobs.cobs.test

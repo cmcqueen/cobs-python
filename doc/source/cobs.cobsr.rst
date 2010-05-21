@@ -55,8 +55,8 @@ The function decodes a byte string according to the COBS/R method.
     :return:        Decoded data.
     :rtype:         byte string
 
-    If a zero ``b'\x00'`` byte is found in the input data, a ``cobsr.DecodeError``
-    exception will be raised.
+    If a zero ``b'\x00'`` byte is found in the input data, a
+    ``cobs.cobsr.DecodeError`` exception will be raised.
 
 
 ..  _cobsr-examples:
