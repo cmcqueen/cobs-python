@@ -15,3 +15,5 @@ try:
 except ImportError:
     from cobs.cobsr._cobsr_py import *
     _using_extension = False
+
+DecodeError.__module__ = 'cobs.cobsr'

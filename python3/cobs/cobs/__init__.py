@@ -22,3 +22,5 @@ try:
 except ImportError:
     from ._cobs_py import *
     _using_extension = False
+
+DecodeError.__module__ = 'cobs.cobs'
