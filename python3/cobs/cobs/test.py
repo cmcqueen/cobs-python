@@ -150,9 +150,11 @@ class InputTypesTest(unittest.TestCase):
         They should raise a TypeError."""
         for (test_string, expected_encoded_string) in self.predefined_encodings:
             unicode_test_string = test_string.decode('latin')
-            self.assertRaises(TypeError, cobs.encode, unicode_test_string)
+            with self.assertRaises(TypeError):
+                cobs.encode(unicode_test_string)
             unicode_encoded_string = expected_encoded_string.decode('latin')
-            self.assertRaises(TypeError, cobs.decode, unicode_encoded_string)
+            with self.assertRaises(TypeError):
+                cobs.decode(unicode_encoded_string)
 
     def test_bytearray(self):
         """Test that bytearray objects can be encoded or decoded."""
@@ -182,9 +184,11 @@ class InputTypesTest(unittest.TestCase):
         typecodes = [ 'H', 'h', 'i', 'I', 'l', 'L', 'f', 'd' ]
         for typecode in typecodes:
             array_test_string = array(typecode, [ 49, 50, 51, 52, 53 ])
-            self.assertRaises(BufferError, cobs.encode, array_test_string)
+            with self.assertRaises(BufferError):
+                cobs.encode(array_test_string)
             array_encoded_string = array(typecode, [6, 49, 50, 51, 52, 53 ])
-            self.assertRaises(BufferError, cobs.decode, array_encoded_string)
+            with self.assertRaises(BufferError):
+                cobs.decode(array_encoded_string)
 
 
 def runtests():
