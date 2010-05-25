@@ -171,7 +171,7 @@ cobsr_encode(PyObject* module, PyObject* arg)
     src_byte = 0;
 
     /* Iterate over the source bytes */
-    if (src_ptr < src_end_ptr)
+    if (src_len != 0)
     {
         for (;;)
         {
@@ -224,18 +224,17 @@ cobsr_encode(PyObject* module, PyObject* arg)
     {
         /* Encoding same as plain COBS */
         *dst_code_write_ptr = (char) search_len;
-        dst_code_write_ptr = dst_write_ptr;
     }
     else
     {
         /* Special COBS/R encoding: length code is final byte,
          * and final byte is removed from data sequence. */
         *dst_code_write_ptr = (char) src_byte;
-        dst_code_write_ptr = dst_write_ptr - 1;
+        dst_write_ptr--;
     }
 
     /* Calculate the output length, from the value of dst_code_write_ptr */
-    _PyBytes_Resize(&dst_py_obj_ptr, dst_code_write_ptr - dst_buf_ptr);
+    _PyBytes_Resize(&dst_py_obj_ptr, dst_write_ptr - dst_buf_ptr);
 
     return dst_py_obj_ptr;
 }
@@ -327,13 +326,14 @@ cobsr_decode(PyObject* module, PyObject* arg)
                 *dst_write_ptr++ = src_byte;
             }
 
-            if (len_code - 1 > remaining_bytes)
-            {
-                *dst_write_ptr++ = len_code;
-            }
-
             if (src_ptr >= src_end_ptr)
             {
+                /* Write final data byte, if applicable for COBS/R encoding. */
+                if (len_code - 1 > remaining_bytes)
+                {
+                    *dst_write_ptr++ = len_code;
+                }
+
                 break;
             }
 

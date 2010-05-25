@@ -166,7 +166,7 @@ cobs_encode(PyObject* module, PyObject* arg)
     search_len = 1;
 
     /* Iterate over the source bytes */
-    if (src_ptr < src_end_ptr)
+    if (src_len != 0)
     {
         for (;;)
         {
@@ -210,10 +210,9 @@ cobs_encode(PyObject* module, PyObject* arg)
      * Update the pointer to calculate the final output length.
      */
     *dst_code_write_ptr = (char) search_len;
-    dst_code_write_ptr = dst_write_ptr;
 
     /* Calculate the output length, from the value of dst_code_write_ptr */
-    _PyBytes_Resize(&dst_py_obj_ptr, dst_code_write_ptr - dst_buf_ptr);
+    _PyBytes_Resize(&dst_py_obj_ptr, dst_write_ptr - dst_buf_ptr);
 
     return dst_py_obj_ptr;
 }
