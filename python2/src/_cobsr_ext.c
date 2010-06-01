@@ -54,10 +54,6 @@ typedef int Py_ssize_t;
 #define TRUE        (!FALSE)
 #endif
 
-#ifndef MIN
-#define MIN(X,Y)    ((X) < (Y) ? (X) : (Y))
-#endif
-
 
 #define COBSR_ENCODE_DST_BUF_LEN_MAX(SRC_LEN)           ((SRC_LEN) + ((SRC_LEN)/254u) + 1)
 #define COBSR_DECODE_DST_BUF_LEN_MAX(SRC_LEN)           (((SRC_LEN) <= 1) ? 1 : (SRC_LEN))
@@ -251,33 +247,51 @@ cobsr_decode(PyObject* self, PyObject* args)
 
             remaining_bytes = src_end_ptr - src_ptr;
 
-            for (i = MIN(len_code - 1, remaining_bytes); i != 0; i--)
+            if ((len_code - 1) < remaining_bytes)
             {
-                src_byte = *src_ptr++;
-                if (src_byte == 0)
+                for (i = len_code - 1; i != 0; i--)
                 {
-                    Py_DECREF(dst_py_obj_ptr);
-                    PyErr_SetString(CobsrDecodeError, "zero byte found in input");
-                    return NULL;
+                    src_byte = *src_ptr++;
+                    if (src_byte == 0)
+                    {
+                        Py_DECREF(dst_py_obj_ptr);
+                        PyErr_SetString(CobsrDecodeError, "zero byte found in input");
+                        return NULL;
+                    }
+                    *dst_write_ptr++ = src_byte;
                 }
-                *dst_write_ptr++ = src_byte;
-            }
 
-            if (src_ptr >= src_end_ptr)
+                /* Add a zero to the end */
+                if (len_code != 0xFF)
+                {
+                    *dst_write_ptr++ = 0;
+                }
+            }
+            else
             {
+                /* We've reached the last length code, so write the remaining
+                 * bytes and then exit the loop. */
+
+                for (i = remaining_bytes; i != 0; i--)
+                {
+                    src_byte = *src_ptr++;
+                    if (src_byte == 0)
+                    {
+                        Py_DECREF(dst_py_obj_ptr);
+                        PyErr_SetString(CobsrDecodeError, "zero byte found in input");
+                        return NULL;
+                    }
+                    *dst_write_ptr++ = src_byte;
+                }
+
                 /* Write final data byte, if applicable for COBS/R encoding. */
                 if (len_code - 1 > remaining_bytes)
                 {
                     *dst_write_ptr++ = len_code;
                 }
 
+                /* Exit the loop */
                 break;
-            }
-
-            /* Add a zero to the end */
-            if (len_code != 0xFF)
-            {
-                *dst_write_ptr++ = 0;
             }
         }
     }
