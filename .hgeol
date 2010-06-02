@@ -1,0 +1,9 @@
+[patterns]
+**.c = native
+**.py = native
+**.txt = native
+**.rst = native
+
+**.bat = CRLF
+
+Makefile = LF
