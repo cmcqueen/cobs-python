@@ -130,10 +130,10 @@ Example for *n*\ =4:
 :math:`x_0`     :math:`x_1`     :math:`x_2`     :math:`x_3`     Probability of Pattern  Probability of +1 byte
 ==============  ==============  ==============  ==============  ======================  ======================
 any             any             any             :math:`=0`      |fp0|                   :math:`1`
-any             any             :math:`=0`      :math:`\ne 0`   |fp1|                   :math:`P(x_3 \le 1|x_3\ne 0)`
-any             :math:`=0`      :math:`\ne 0`   :math:`\ne 0`   |fp2|                   :math:`P(x_3 \le 2|x_3\ne 0)`
-:math:`=0`      :math:`\ne 0`   :math:`\ne 0`   :math:`\ne 0`   |fp3|                   :math:`P(x_3 \le 3|x_3\ne 0)`
-:math:`\ne 0`   :math:`\ne 0`   :math:`\ne 0`   :math:`\ne 0`   |fp4|                   :math:`P(x_3 \le 4|x_3\ne 0)`
+any             any             :math:`=0`      :math:`\ne 0`   |fp1|                   :math:`P(x_3 \le 1 \vert x_3\ne 0)`
+any             :math:`=0`      :math:`\ne 0`   :math:`\ne 0`   |fp2|                   :math:`P(x_3 \le 2 \vert x_3\ne 0)`
+:math:`=0`      :math:`\ne 0`   :math:`\ne 0`   :math:`\ne 0`   |fp3|                   :math:`P(x_3 \le 3 \vert x_3\ne 0)`
+:math:`\ne 0`   :math:`\ne 0`   :math:`\ne 0`   :math:`\ne 0`   |fp4|                   :math:`P(x_3 \le 4 \vert x_3\ne 0)`
 ==============  ==============  ==============  ==============  ======================  ======================
 
 ..  |fp0|   replace::   :math:`P(x_3=0)`
@@ -146,7 +146,7 @@ Multiply the last two columns, and sum for all rows. For a message of length
 *n* where :math:`1 \le n \le 254`, the general equation for the
 probability of the +1 byte is:
 
-..  math::  P(x_{n-1} \le n|x_{n-1}\ne 0) \prod_{k=0}^{n-1} P(x_k\ne 0) + \sum_{i=0}^{n-2} \left[ P(x_{n-1} \le (n-1-i)|x_{n-1}\ne 0) P(x_i=0) \prod_{k=i+1}^{n-1} P(x_k\ne 0) \right] + P(x_{n-1}=0)
+..  math::  P(x_{n-1} \le n \vert x_{n-1}\ne 0) \prod_{k=0}^{n-1} P(x_k\ne 0) + \sum_{i=0}^{n-2} \left[ P\bigl(x_{n-1} \le (n-1-i) \vert x_{n-1}\ne 0 \bigr) P(x_i=0) \prod_{k=i+1}^{n-1} P(x_k\ne 0) \right] + P(x_{n-1}=0)
 
 
 Even Byte Distribution Case
@@ -155,7 +155,7 @@ Even Byte Distribution Case
 We can simplify this for the simpler case of messages with byte value
 probabilities that are evenly distributed. In this case:
 
-..  math::  P(x_{n-1} \le n|x_{n-1}\ne 0) = \frac{n}{255}
+..  math::  P(x_{n-1} \le n \vert x_{n-1}\ne 0) = \frac{n}{255}
 
 ..  math::  P(x_i\ne 0) = \frac{255}{256}
 
