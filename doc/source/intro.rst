@@ -120,6 +120,15 @@ Python versions < 2.4 might work, but have not been tested. Python 3.0 has
 also not been tested.
 
 
+--------
+Download
+--------
+
+Source code and binaries can be downloaded from the `Python package index <http://pypi.python.org/pypi/cobs>`_.
+
+The Mercurial source code repository for development is on `Bitbucket <http://bitbucket.org/cmcqueen1975/cobs-python>`_.
+
+
 ------------
 Installation
 ------------
