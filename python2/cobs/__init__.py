@@ -12,3 +12,6 @@ __all__ = [ 'cobs', 'cobsr', ]
 
 #import cobs
 #import cobsr
+
+from _version import *
+

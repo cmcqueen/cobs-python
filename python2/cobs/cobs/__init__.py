@@ -24,3 +24,6 @@ except ImportError:
     _using_extension = False
 
 DecodeError.__module__ = 'cobs.cobs'
+
+from cobs._version import *
+

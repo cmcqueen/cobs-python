@@ -17,3 +17,6 @@ except ImportError:
     _using_extension = False
 
 DecodeError.__module__ = 'cobs.cobsr'
+
+from .._version import *
+

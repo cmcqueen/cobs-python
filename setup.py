@@ -4,6 +4,8 @@ import sys
 from distutils.core import setup
 from distutils.extension import Extension
 
+import _version
+
 if sys.version_info[0] == 2:
     base_dir = 'python2'
 elif sys.version_info[0] == 3:
@@ -11,14 +13,15 @@ elif sys.version_info[0] == 3:
 
 setup(
     name='cobs',
-    version='1.1.0',
+    version=_version.__version__,
     description='Consistent Overhead Byte Stuffing (COBS)',
     author='Craig McQueen',
     author_email='python@craig.mcqueen.id.au',
     url='http://bitbucket.org/cmcqueen1975/cobs-python/',
-    packages=[ 'cobs', 'cobs.cobs', 'cobs.cobsr', ],
+    packages=[ 'cobs', 'cobs.cobs', 'cobs.cobsr', 'cobs._version', ],
     package_dir={
         'cobs' : base_dir + '/cobs',
+        'cobs._version' : '_version',
     },
     ext_modules=[
         Extension('cobs.cobs._cobs_ext', [ base_dir + '/src/_cobs_ext.c', ]),
