@@ -64,6 +64,9 @@ References
                 | Stuart Cheshire and Mary Baker, Stanford University
                 | November 1997
 
+.. [Cimpl]      | `C Implementation of COBS and COBS/R <http://bitbucket.org/cmcqueen1975/cobs-c>`_
+                | Craig McQueen
+
 
 ----------------
 Modules Provided
@@ -174,3 +177,12 @@ The code is released under the MIT license.
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.
 
+
+---------------------
+Other Implementations
+---------------------
+
+The author has also developed pure C implementation [Cimpl]_ of both COBS and
+COBS/R, developed in close conjunction with this Python module. The C
+implementation is very similar to this Python module's C extension
+implementation.
