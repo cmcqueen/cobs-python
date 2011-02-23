@@ -59,6 +59,14 @@ The function decodes a byte string according to the COBS/R method.
     ``cobs.cobsr.DecodeError`` exception will be raised.
 
 
+``__version__`` -- package version information
+----------------------------------------------
+
+..  data:: __version__
+
+    The variable contains the package version number as a string.
+
+
 ..  _cobsr-examples:
 
 Examples

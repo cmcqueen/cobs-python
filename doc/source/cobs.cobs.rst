@@ -62,6 +62,14 @@ The function decodes a byte string according to the COBS method.
     input, and ``cobs.cobs.DecodeError`` is raised.
 
 
+``__version__`` -- package version information
+----------------------------------------------
+
+..  data:: __version__
+
+    The variable contains the package version number as a string.
+
+
 ..  _cobs-examples:
 
 Examples
