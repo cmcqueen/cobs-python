@@ -13,6 +13,10 @@ def _get_buffer_view(in_bytes):
     mv = memoryview(in_bytes)
     if mv.ndim > 1 or mv.itemsize > 1:
         raise BufferError('object must be a single-dimension buffer of bytes.')
+    try:
+        mv = mv.cast('c')
+    except AttributeError:
+        pass
     return mv
 
 def encode(in_bytes):
