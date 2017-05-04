@@ -25,7 +25,7 @@ setup_dict = dict(
     packages=[ 'cobs', 'cobs.cobs', 'cobs.cobsr', 'cobs._version', ],
     package_dir={
         'cobs' : base_dir + '/cobs',
-        'cobs._version' : '.',
+        'cobs._version' : '_version',
     },
     ext_modules=[
         Extension('cobs.cobs._cobs_ext', [ base_dir + '/src/_cobs_ext.c', ]),
