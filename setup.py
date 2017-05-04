@@ -15,7 +15,7 @@ if sys.version_info[0] == 2:
 elif sys.version_info[0] == 3:
     base_dir = 'python3'
 
-setup(
+setup_dict = dict(
     name='cobs',
     version=_version.__version__,
     description='Consistent Overhead Byte Stuffing (COBS)',
@@ -55,3 +55,11 @@ setup(
         'Topic :: Communications',
     ],
 )
+
+try:
+    setup(**setup_dict)
+except KeyboardInterrupt:
+    raise
+except:
+    del setup_dict['ext_modules']
+    setup(**setup_dict)
