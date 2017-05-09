@@ -32,7 +32,7 @@ setup_dict = dict(
         Extension('cobs.cobsr._cobsr_ext', [ base_dir + '/src/_cobsr_ext.c', ]),
     ],
 
-    long_description=open('README.txt').read(),
+    long_description=open('README.rst').read(),
 
     license="MIT",
     classifiers=[
