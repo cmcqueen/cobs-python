@@ -1,27 +1,26 @@
+#!/usr/bin/python3
 
 from matplotlib import pyplot as plt
 import numpy as np
 from cobs import cobs
 from cobs import cobsr
 
+# TODO: review value
+NUM_TESTS = 100000
 
 def cobsr_overhead_calc(num_bytes):
     return 257./256 - (255./256)**num_bytes
 
 def cobsr_overhead_measure(num_bytes):
-    # TODO: review value
-    NUM_TESTS = 10000
     overhead = 0
-    for _i in xrange(NUM_TESTS):
+    for _i in range(NUM_TESTS):
         output = cobsr.encode(np.random.bytes(num_bytes))
         overhead += (len(output) - num_bytes)
     return overhead / float(NUM_TESTS)
 
 def cobs_overhead_measure(num_bytes):
-    # TODO: review value
-    NUM_TESTS = 10000
     overhead = 0
-    for _i in xrange(NUM_TESTS):
+    for _i in range(NUM_TESTS):
         output = cobs.encode(np.random.bytes(num_bytes))
         overhead += (len(output) - num_bytes)
     return overhead / float(NUM_TESTS)
@@ -35,8 +34,9 @@ num_bytes_list = np.arange(1, 30)
 # Calculate values and plot
 
 # Measured values for COBS
-#cobs_measured_overhead = [ cobs_overhead_measure(num_bytes) for num_bytes in num_bytes_list ]
-#ax1.plot(num_bytes_list, cobs_measured_overhead, 'g.')
+if 0:
+    cobs_measured_overhead = [ cobs_overhead_measure(num_bytes) for num_bytes in num_bytes_list ]
+    ax1.plot(num_bytes_list, cobs_measured_overhead, 'g.')
 
 # Measured values for COBS/R
 cobsr_measured_overhead = [ cobsr_overhead_measure(num_bytes) for num_bytes in num_bytes_list ]
