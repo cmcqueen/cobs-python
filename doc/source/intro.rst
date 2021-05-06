@@ -64,7 +64,7 @@ References
                 | Stuart Cheshire and Mary Baker, Stanford University
                 | November 1997
 
-.. [Cimpl]      | `C Implementation of COBS and COBS/R <http://bitbucket.org/cmcqueen1975/cobs-c>`_
+.. [Cimpl]      | `C Implementation of COBS and COBS/R <https://github.com/cmcqueen/cobs-c>`_
                 | Craig McQueen
 
 
@@ -126,7 +126,7 @@ Download
 
 Source code and binaries can be downloaded from the `Python package index <http://pypi.python.org/pypi/cobs>`_.
 
-The Mercurial source code repository for development is on `Bitbucket <http://bitbucket.org/cmcqueen1975/cobs-python>`_.
+The Git source code repository for development is on `GitHub <https://github.com/cmcqueen/cobs-python>`_.
 
 
 ------------
