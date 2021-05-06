@@ -17,7 +17,7 @@ setup_dict = dict(
     description='Consistent Overhead Byte Stuffing (COBS)',
     author='Craig McQueen',
     author_email='python@craig.mcqueen.id.au',
-    url='http://bitbucket.org/cmcqueen1975/cobs-python/',
+    url='https://github.com/cmcqueen/cobs-python/',
     packages=[ 'cobs', 'cobs.cobs', 'cobs.cobsr', 'cobs._version', ],
     package_dir={
         'cobs' : base_dir + '/cobs',

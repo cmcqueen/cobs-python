@@ -250,7 +250,7 @@ References
             | Universidade do Porto / INESC Porto
             | IEEE ICC 2007
 
-.. [C3]     | `C Implementation of COBS and COBS/R <http://bitbucket.org/cmcqueen1975/cobs-c>`_
+.. [C3]     | `C Implementation of COBS and COBS/R <https://github.com/cmcqueen/cobs-c>`_
             | Craig McQueen
 
 .. [C4]     | :ref:`Python Implementation of COBS and COBS/R <index>`
