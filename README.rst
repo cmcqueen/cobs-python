@@ -103,28 +103,26 @@ Usage
 
 The modules provide an ``encode`` and a ``decode`` function.
 
-In Python 2.x, the input should be a byte string. Basic usage (example in
-Python 2.x)::
+The input should be a byte string, not a Unicode string. Basic usage::
 
     >>> from cobs import cobs
-    >>> encoded = cobs.encode('Hello world\x00This is a test')
+    >>> encoded = cobs.encode(b'Hello world\x00This is a test')
     >>> encoded
-    '\x0cHello world\x0fThis is a test'
+    b'\x0cHello world\x0fThis is a test'
     >>> cobs.decode(encoded)
-    'Hello world\x00This is a test'
+    b'Hello world\x00This is a test'
 
 `COBS/R`_ usage is almost identical::
 
     >>> from cobs import cobsr
-    >>> encoded = cobsr.encode('Hello world\x00This is a test')
+    >>> encoded = cobsr.encode(b'Hello world\x00This is a test')
     >>> encoded
-    '\x0cHello worldtThis is a tes'
+    b'\x0cHello worldtThis is a tes'
     >>> cobsr.decode(encoded)
-    'Hello world\x00This is a test'
+    b'Hello world\x00This is a test'
 
-For Python 3.x, input cannot be Unicode strings. Byte strings are acceptable
-input. Any type that implements the buffer protocol, providing a single
-block of bytes, is also acceptable as input::
+Any type that implements the buffer protocol, providing a single block of
+bytes, is also acceptable as input::
 
     >>> from cobs import cobs
     >>> encoded = cobs.encode(bytearray(b'Hello world\x00This is a test'))
@@ -138,11 +136,10 @@ block of bytes, is also acceptable as input::
 Supported Python Versions
 -------------------------
 
-Python >= 2.4 and 3.x are supported, and have both a C extension and a pure
-Python implementation.
+Python >= 3.6 are supported, and have both a C extension and a pure Python
+implementation.
 
-Python versions < 2.4 might work, but have not been tested. Python 3.0 has
-also not been tested.
+Python versions < 3.6 might work, but have not been tested.
 
 
 ------------
@@ -164,15 +161,10 @@ implementation, using the following command::
 Unit Testing
 ------------
 
-Basic unit testing is in the ``test`` sub-module, e.g. ``cobs.cobs.test``. To run it on Python >=2.5::
+Basic unit testing is in the ``test`` sub-module, e.g. ``cobs.cobs.test``. To run it::
 
     python -m cobs.cobs.test
     python -m cobs.cobsr.test
-
-Alternatively, in the ``test`` directory run::
-
-    python test_cobs.py
-    python test_cobsr.py
 
 
 -------------
