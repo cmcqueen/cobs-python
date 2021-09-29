@@ -1,3 +1,2 @@
 include *.txt
-recursive-include python2 *
 recursive-include python3 *
