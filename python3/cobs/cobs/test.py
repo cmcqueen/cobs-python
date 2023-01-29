@@ -13,7 +13,6 @@ import unittest
 from .. import cobs as cobs
 #from ..cobs import _cobs_py as cobs
 
-
 def infinite_non_zero_generator():
     while True:
         for i in range(1,50):
@@ -189,6 +188,25 @@ class InputTypesTest(unittest.TestCase):
             array_encoded_string = array(typecode, [6, 49, 50, 51, 52, 53 ])
             with self.assertRaises(BufferError):
                 cobs.decode(array_encoded_string)
+
+
+class UtilTests(unittest.TestCase):
+
+    def test_encoded_len_calc(self):
+        self.assertEqual(cobs.encoding_overhead(5), 1)
+        self.assertEqual(cobs.max_encoded_length(5), 6)
+
+    def test_encoded_len_calc_empty_packet(self):
+        self.assertEqual(cobs.encoding_overhead(0), 0)
+        self.assertEqual(cobs.max_encoded_length(0), 0)
+
+    def test_encoded_len_calc_still_one_byte_overhead(self):
+        self.assertEqual(cobs.encoding_overhead(254), 1)
+        self.assertEqual(cobs.max_encoded_length(254), 255)
+
+    def test_encoded_len_calc_two_byte_overhead(self):
+        self.assertEqual(cobs.encoding_overhead(255), 2)
+        self.assertEqual(cobs.max_encoded_length(255), 257)
 
 
 def runtests():
