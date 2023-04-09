@@ -131,6 +131,14 @@ bytes, is also acceptable as input::
     >>> cobs.decode(encoded)
     b'Hello world\x00This is a test'
 
+Note that the ``encode`` function does not add any framing ``0x00`` byte at
+the end (or beginning) of the encoded data. Similarly, the ``decode`` function
+does not strip or split on any framing ``0x00`` bytes, but treats any ``0x00``
+bytes as a data input error. The details of data framing is
+application-specific, so it is the user's application's responsibility to
+implement the framing and deframing that is suitable for the needs of the
+application.
+
 
 -------------------------
 Supported Python Versions
