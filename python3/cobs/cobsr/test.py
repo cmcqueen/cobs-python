@@ -226,20 +226,20 @@ class InputTypesTest(unittest.TestCase):
 class UtilTests(unittest.TestCase):
 
     def test_encoded_len_calc(self):
-        self.assertEqual(cobs.encoding_overhead(5), 1)
-        self.assertEqual(cobs.max_encoded_length(5), 6)
+        self.assertEqual(cobsr.encoding_overhead(5), 1)
+        self.assertEqual(cobsr.max_encoded_length(5), 6)
 
     def test_encoded_len_calc_empty_packet(self):
-        self.assertEqual(cobs.encoding_overhead(0), 1)
-        self.assertEqual(cobs.max_encoded_length(0), 1)
+        self.assertEqual(cobsr.encoding_overhead(0), 1)
+        self.assertEqual(cobsr.max_encoded_length(0), 1)
 
     def test_encoded_len_calc_still_one_byte_overhead(self):
-        self.assertEqual(cobs.encoding_overhead(254), 1)
-        self.assertEqual(cobs.max_encoded_length(254), 255)
+        self.assertEqual(cobsr.encoding_overhead(254), 1)
+        self.assertEqual(cobsr.max_encoded_length(254), 255)
 
     def test_encoded_len_calc_two_byte_overhead(self):
-        self.assertEqual(cobs.encoding_overhead(255), 2)
-        self.assertEqual(cobs.max_encoded_length(255), 257)
+        self.assertEqual(cobsr.encoding_overhead(255), 2)
+        self.assertEqual(cobsr.max_encoded_length(255), 257)
 
 
 def runtests():
