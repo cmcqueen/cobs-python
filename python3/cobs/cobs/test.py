@@ -197,8 +197,8 @@ class UtilTests(unittest.TestCase):
         self.assertEqual(cobs.max_encoded_length(5), 6)
 
     def test_encoded_len_calc_empty_packet(self):
-        self.assertEqual(cobs.encoding_overhead(0), 0)
-        self.assertEqual(cobs.max_encoded_length(0), 0)
+        self.assertEqual(cobs.encoding_overhead(0), 1)
+        self.assertEqual(cobs.max_encoded_length(0), 1)
 
     def test_encoded_len_calc_still_one_byte_overhead(self):
         self.assertEqual(cobs.encoding_overhead(254), 1)
