@@ -20,3 +20,16 @@ DecodeError.__module__ = 'cobs.cobsr'
 
 from .._version import *
 
+
+def encoding_overhead(source_len):
+    """Calculates the maximum overhead when encoding a message with the given length.
+    The overhead is a maximum of [n/254] bytes (one in 254 bytes) rounded up."""
+    if source_len == 0:
+        return 1
+    return (source_len + 253) // 254
+
+
+def max_encoded_length(source_len):
+    """Calculates how maximum possible size of an encoded message given the length of the
+    source message."""
+    return source_len + encoding_overhead(source_len)
