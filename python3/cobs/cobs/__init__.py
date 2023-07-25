@@ -26,4 +26,3 @@ except ImportError:
 DecodeError.__module__ = 'cobs.cobs'
 
 from .._version import *
-

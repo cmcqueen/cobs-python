@@ -223,6 +223,25 @@ class InputTypesTest(unittest.TestCase):
                 cobsr.decode(array_encoded_string)
 
 
+class UtilTests(unittest.TestCase):
+
+    def test_encoded_len_calc(self):
+        self.assertEqual(cobsr.encoding_overhead(5), 1)
+        self.assertEqual(cobsr.max_encoded_length(5), 6)
+
+    def test_encoded_len_calc_empty_packet(self):
+        self.assertEqual(cobsr.encoding_overhead(0), 1)
+        self.assertEqual(cobsr.max_encoded_length(0), 1)
+
+    def test_encoded_len_calc_still_one_byte_overhead(self):
+        self.assertEqual(cobsr.encoding_overhead(254), 1)
+        self.assertEqual(cobsr.max_encoded_length(254), 255)
+
+    def test_encoded_len_calc_two_byte_overhead(self):
+        self.assertEqual(cobsr.encoding_overhead(255), 2)
+        self.assertEqual(cobsr.max_encoded_length(255), 257)
+
+
 def runtests():
     unittest.main()
 
