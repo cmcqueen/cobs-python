@@ -144,10 +144,10 @@ application.
 Supported Python Versions
 -------------------------
 
-Python >= 3.6 are supported, and have both a C extension and a pure Python
+Python >= 3.10 are supported, and have both a C extension and a pure Python
 implementation.
 
-Python versions < 3.6 might work, but have not been tested.
+Python versions < 3.10 might work, but have not been tested.
 
 
 ------------
