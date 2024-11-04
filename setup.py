@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+import os
 import sys
 
 from setuptools import setup, Extension
@@ -12,11 +13,13 @@ setup_dict = dict(
     package_dir={
         'cobs' : 'src/cobs',
     },
-    ext_modules=[
-        Extension('cobs.cobs._cobs_ext', [ 'src/ext/_cobs_ext.c', ]),
-        Extension('cobs.cobsr._cobsr_ext', [ 'src/ext/_cobsr_ext.c', ]),
-    ],
 )
+
+if not hasattr(sys, "pypy_version_info") and os.environ.get("COBS_PUREPYTHON"):
+    setup_dict['ext_modules'] = [
+                                    Extension('cobs.cobs._cobs_ext',    [ 'src/ext/_cobs_ext.c',  ]),
+                                    Extension('cobs.cobsr._cobsr_ext',  [ 'src/ext/_cobsr_ext.c', ])
+                                ]
 
 try:
     setup(**setup_dict)
