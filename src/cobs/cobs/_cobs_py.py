@@ -14,7 +14,8 @@ def _get_buffer_view(in_bytes):
     if mv.ndim > 1 or mv.itemsize > 1:
         raise BufferError('object must be a single-dimension buffer of bytes.')
     try:
-        mv = mv.cast('c')
+        if mv.format != 'B':
+            mv = mv.cast('B')
     except AttributeError:
         pass
     return mv
@@ -36,7 +37,7 @@ def encode(in_bytes):
     idx = 0
     search_start_idx = 0
     for in_char in in_bytes_mv:
-        if in_char == b'\x00':
+        if in_char == 0:
             final_zero = True
             out_bytes.append(idx - search_start_idx + 1)
             out_bytes += in_bytes_mv[search_start_idx:idx]
@@ -70,13 +71,13 @@ def decode(in_bytes):
 
     if len(in_bytes_mv) > 0:
         while True:
-            length = ord(in_bytes_mv[idx])
+            length = in_bytes_mv[idx]
             if length == 0:
                 raise DecodeError("zero byte found in input")
             idx += 1
             end = idx + length - 1
             copy_mv = in_bytes_mv[idx:end]
-            if b'\x00' in copy_mv:
+            if 0 in copy_mv:
                 raise DecodeError("zero byte found in input")
             out_bytes += copy_mv
             idx = end
