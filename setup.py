@@ -8,6 +8,8 @@ if sys.version_info[0] == 2:
     raise Exception('Python 2.x is no longer supported')
 
 setup_dict = dict(
+    name="cobs",
+    version="1.2.1",
     packages=[ 'cobs', 'cobs.cobs', 'cobs.cobsr', 'cobs._version', ],
     package_dir={
         'cobs' : 'src/cobs',
