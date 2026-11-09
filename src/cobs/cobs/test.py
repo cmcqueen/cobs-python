@@ -175,6 +175,14 @@ class InputTypesTest(unittest.TestCase):
             decoded = cobs.decode(array_encoded_string)
             self.assertEqual(decoded, test_string)
 
+    def test_memoryview(self):
+        """Test that memoryview objects can be encoded or decoded."""
+        for (test_string, expected_encoded_string) in self.predefined_encodings:
+            encoded = cobs.encode(memoryview(test_string))
+            self.assertEqual(encoded, expected_encoded_string)
+            decoded = cobs.decode(memoryview(expected_encoded_string))
+            self.assertEqual(decoded, test_string)
+
     def test_array_of_half_words(self):
         """Test that array of half-word objects (array('H', ...)) are not encoded or decoded.
         They should raise a BufferError."""
