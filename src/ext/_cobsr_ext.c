@@ -61,7 +61,7 @@
                             "object supporting the buffer API is required"); \
             return NULL; \
         } \
-        if (PyObject_GetBuffer((obj), (viewp), PyBUF_FORMAT) == -1) { \
+        if (PyObject_GetBuffer((obj), (viewp), PyBUF_ND) == -1) { \
             return NULL; \
         } \
         if (((viewp)->ndim > 1) || ((viewp)->itemsize > 1)) { \
