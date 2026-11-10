@@ -9,7 +9,7 @@ if sys.version_info[0] == 2:
 
 setup_dict = dict(
     name="cobs",
-    version="1.2.2",
+    version="1.2.3",
     packages=[ 'cobs', 'cobs.cobs', 'cobs.cobsr', 'cobs._version', ],
     package_dir={
         'cobs' : 'src/cobs',
